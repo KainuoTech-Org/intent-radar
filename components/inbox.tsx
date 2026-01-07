@@ -45,6 +45,7 @@ export function Inbox() {
   }, [])
 
   const handleScanComplete = (results: Intent[]) => {
+    // Only keep the newly scanned results to ensure "freshness" and avoid preset duplication
     setIntents(results)
     localStorage.setItem("scannedIntents", JSON.stringify(results))
     setIsDialogOpen(false)
