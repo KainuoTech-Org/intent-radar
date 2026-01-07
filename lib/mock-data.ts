@@ -18,7 +18,7 @@ export const DEMO_INTENTS: Intent[] = [
   {
     id: "1",
     platform: "xiaohongshu",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop",
+    avatar: "https://unavatar.io/twitter/alexchen",
     author: "Alex Chen",
     timeAgo: "2小时前",
     content: "香港这边需要找个全栈开发，做B2B SaaS项目，有React和Node经验的联系我！预算充足💰",
@@ -33,7 +33,7 @@ export const DEMO_INTENTS: Intent[] = [
   {
     id: "2",
     platform: "linkedin",
-    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",
+    avatar: "https://unavatar.io/github/sarahliu",
     author: "Sarah Liu",
     timeAgo: "5 hours ago",
     content:
@@ -49,7 +49,7 @@ export const DEMO_INTENTS: Intent[] = [
   {
     id: "3",
     platform: "x",
-    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop",
+    avatar: "https://unavatar.io/twitter/mikerodr",
     author: "Mike Rodriguez",
     timeAgo: "1 day ago",
     content:
@@ -61,7 +61,7 @@ export const DEMO_INTENTS: Intent[] = [
   {
     id: "4",
     platform: "telegram",
-    avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=100&fit=crop",
+    avatar: "https://unavatar.io/telegram/davidwong",
     author: "David Wong",
     timeAgo: "6 hours ago",
     content:
@@ -73,7 +73,7 @@ export const DEMO_INTENTS: Intent[] = [
   {
     id: "5",
     platform: "reddit",
-    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop",
+    avatar: "https://unavatar.io/reddit/tech_recruiter_hk",
     author: "u/tech_recruiter_hk",
     timeAgo: "3 hours ago",
     content:
@@ -85,7 +85,7 @@ export const DEMO_INTENTS: Intent[] = [
   {
     id: "6",
     platform: "linkedin",
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop",
+    avatar: "https://unavatar.io/github/emilyzhang",
     author: "Emily Zhang",
     timeAgo: "12 hours ago",
     content:
@@ -97,7 +97,7 @@ export const DEMO_INTENTS: Intent[] = [
   {
     id: "7",
     platform: "xiaohongshu",
-    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop",
+    avatar: "https://unavatar.io/twitter/lisawang",
     author: "Lisa Wang",
     timeAgo: "8小时前",
     content: "需要会React Native的移动端开发，做电商app，项目周期3个月，有兴趣的私信报价～",
@@ -108,7 +108,7 @@ export const DEMO_INTENTS: Intent[] = [
   {
     id: "8",
     platform: "x",
-    avatar: "https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=100&h=100&fit=crop",
+    avatar: "https://unavatar.io/twitter/jamestech",
     author: "James Tech",
     timeAgo: "2 days ago",
     content:
@@ -120,7 +120,7 @@ export const DEMO_INTENTS: Intent[] = [
   {
     id: "9",
     platform: "facebook",
-    avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&h=100&fit=crop",
+    avatar: "https://unavatar.io/facebook/rachelkim",
     author: "Rachel Kim",
     timeAgo: "4 hours ago",
     content:
@@ -132,7 +132,7 @@ export const DEMO_INTENTS: Intent[] = [
   {
     id: "10",
     platform: "instagram",
-    avatar: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=100&h=100&fit=crop",
+    avatar: "https://unavatar.io/instagram/designstudio_hk",
     author: "designstudio_hk",
     timeAgo: "1 day ago",
     content:
