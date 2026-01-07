@@ -155,7 +155,7 @@ export function AIQuestionnaire({
   if (mode === "choice") {
     return (
       <div className={`w-full flex items-center justify-center p-4 ${isModal ? '' : 'min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50'}`}>
-        <div className="max-w-4xl w-full bg-white/80 backdrop-blur-md p-10 rounded-3xl shadow-xl">
+        <div className={`${isModal ? 'w-full' : 'max-w-5xl w-full'} bg-white p-12 rounded-[32px] shadow-2xl border border-gray-100`}>
           <div className="text-center mb-12">
             <div className="inline-flex items-center gap-2 mb-4">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center">

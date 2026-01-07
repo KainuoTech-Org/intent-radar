@@ -34,16 +34,6 @@ export function Sidebar() {
         </button>
       </div>
 
-      <div className="px-4 pt-4">
-        <button
-          onClick={() => router.push("/onboarding")}
-          className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:shadow-lg transition-all"
-        >
-          <Sparkles size={20} />
-          <span className="font-medium">AI配置助手</span>
-        </button>
-      </div>
-
       {/* Navigation */}
       <nav className="flex-1 px-4 py-6 space-y-2">
         {menuItems.map((item) => {
@@ -71,11 +61,15 @@ export function Sidebar() {
           <Bell size={20} />
           <span className="text-sm">Notifications</span>
         </button>
-        <div className="px-4 py-3 rounded-lg bg-sidebar-accent flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-purple-600" />
+        <div className="px-4 py-3 rounded-lg bg-sidebar-accent/50 flex items-center gap-3 border border-sidebar-border/50">
+          <img 
+            src="https://unavatar.io/github/johnson" 
+            className="w-8 h-8 rounded-full border border-purple-200"
+            alt="User"
+          />
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-sidebar-foreground truncate">User Profile</p>
-            <p className="text-xs text-sidebar-foreground/60">you@example.com</p>
+            <p className="text-sm font-bold text-sidebar-foreground truncate tracking-tight">Johnson GAO</p>
+            <p className="text-[10px] font-medium text-sidebar-foreground/40 uppercase tracking-widest">Premium Radar</p>
           </div>
         </div>
       </div>

@@ -89,7 +89,7 @@ export function Inbox() {
                     AI搜索助手
                   </button>
                 </DialogTrigger>
-                <DialogContent className="max-w-4xl p-0 overflow-hidden bg-transparent border-none shadow-none">
+                <DialogContent className="max-w-[1000px] p-0 overflow-hidden bg-transparent border-none shadow-none focus:outline-none">
                   <AIQuestionnaire isModal onComplete={handleScanComplete} />
                 </DialogContent>
               </Dialog>
@@ -115,14 +115,8 @@ export function Inbox() {
           <div className="flex items-center justify-between">
             <div className="flex gap-8">
               <button className="text-gray-900 font-semibold pb-3 border-b-2 border-purple-600 relative">
-                All
-                <span className="ml-2 text-sm text-gray-500">({filteredIntents.length})</span>
-              </button>
-              <button className="text-gray-500 hover:text-gray-900 pb-3 flex items-center gap-1.5 font-medium transition-colors">
-                AI Inbox
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
-                  <path d="M6 8L2 4h8L6 8z" />
-                </svg>
+                最近意向
+                <span className="ml-2 text-sm text-gray-400">({filteredIntents.length})</span>
               </button>
             </div>
 
