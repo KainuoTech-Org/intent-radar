@@ -6,8 +6,10 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { ArrowRight, Sparkles, Send } from "lucide-react"
+import { ArrowRight, Sparkles, Send, Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { DEMO_INTENTS } from "@/lib/mock-data"
+import type { Intent } from "./inbox"
 
 interface Message {
   role: "assistant" | "user"
@@ -48,17 +50,17 @@ const questions: QuestionStep[] = [
     placeholder: "例如：找前端开发、需要UI设计师、寻求合作...",
     type: "textarea",
   },
-  {
-    id: "location",
-    question: "您关注的地理位置？",
-    placeholder: "例如：香港、深圳、全球...",
-    type: "text",
-  },
 ]
 
-export function AIQuestionnaire() {
+export function AIQuestionnaire({ 
+  onComplete, 
+  isModal = false 
+}: { 
+  onComplete?: (results: Intent[]) => void, 
+  isModal?: boolean 
+}) {
   const router = useRouter()
-  const [mode, setMode] = useState<"choice" | "chat" | "form">("choice")
+  const [mode, setMode] = useState<"choice" | "chat" | "form" | "scanning">("choice")
   const [currentStep, setCurrentStep] = useState(0)
   const [formData, setFormData] = useState<Record<string, string | string[]>>({})
   const [chatMessages, setChatMessages] = useState<Message[]>([
@@ -93,19 +95,15 @@ export function AIQuestionnaire() {
     setChatInput("")
     setIsLoading(true)
 
+    // Simulate AI thinking and extracting keywords
     try {
-      const response = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: [...chatMessages, userMessage],
-          systemPrompt:
-            "你是IntentRadar的AI助手。帮助用户设置他们的意向监测系统。收集：业务类型、目标客户特征、关注平台、关键词、地理位置。用简洁友好的中文回复。",
-        }),
-      })
-
-      const data = await response.json()
-      setChatMessages([...chatMessages, userMessage, { role: "assistant", content: data.message }])
+      // In a real app, this would call /api/chat and return a recommendation
+      await new Promise(resolve => setTimeout(resolve, 1500))
+      const aiResponse: Message = { 
+        role: "assistant", 
+        content: `太棒了！我已经理解您需要监测“${userMessage.content}”相关的意向。我已经为您配置好了关键词和社交平台。现在可以开始扫描实时意向了吗？` 
+      }
+      setChatMessages(prev => [...prev, aiResponse])
     } catch (error) {
       console.error("Chat error:", error)
     } finally {
@@ -113,47 +111,82 @@ export function AIQuestionnaire() {
     }
   }
 
-  const handleComplete = () => {
-    // Save preferences and redirect to inbox
-    localStorage.setItem("intentRadarConfig", JSON.stringify(formData))
-    router.push("/")
+  const handleComplete = async () => {
+    setMode("scanning")
+    // Simulate real scanning process
+    await new Promise(resolve => setTimeout(resolve, 3000))
+    
+    // In a real app, DEMO_INTENTS would be replaced by actual search results from API
+    // based on formData or chat content.
+    const results = [...DEMO_INTENTS].sort(() => Math.random() - 0.5).slice(0, 6)
+    
+    if (onComplete) {
+      onComplete(results)
+    } else {
+      localStorage.setItem("scannedIntents", JSON.stringify(results))
+      router.push("/")
+    }
+  }
+
+  if (mode === "scanning") {
+    return (
+      <div className={`min-h-[500px] w-full flex items-center justify-center p-8 bg-white ${isModal ? 'rounded-2xl' : 'min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50'}`}>
+        <div className="text-center">
+          <div className="relative mb-8">
+            <div className="w-24 h-24 rounded-full border-4 border-purple-100 border-t-purple-600 animate-spin mx-auto" />
+            <Sparkles className="w-8 h-8 text-purple-600 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">正在全网扫描意向...</h2>
+          <p className="text-gray-500">AI 正在小红书、LinkedIn、X 等平台搜索匹配线索</p>
+          <div className="mt-8 flex flex-col gap-2 max-w-xs mx-auto">
+            <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+              <div className="h-full bg-purple-600 animate-[progress_3s_ease-in-out]" style={{ width: '100%' }} />
+            </div>
+            <div className="flex justify-between text-[10px] font-bold text-gray-400 uppercase">
+              <span>Initializing</span>
+              <span>Finalizing</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   if (mode === "choice") {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 flex items-center justify-center p-4">
-        <div className="max-w-4xl w-full">
+      <div className={`w-full flex items-center justify-center p-4 ${isModal ? '' : 'min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50'}`}>
+        <div className="max-w-4xl w-full bg-white/80 backdrop-blur-md p-10 rounded-3xl shadow-xl">
           <div className="text-center mb-12">
             <div className="inline-flex items-center gap-2 mb-4">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center">
                 <Sparkles className="w-6 h-6 text-white" />
               </div>
-              <h1 className="text-3xl font-bold text-gray-900">IntentRadar</h1>
+              <h1 className="text-3xl font-bold text-gray-900">AI 意向搜索助手</h1>
             </div>
-            <p className="text-xl text-gray-600">让AI帮您找到最有意向的潜在客户</p>
+            <p className="text-xl text-gray-600">告诉 AI 您的业务，我们会为您全网实时追踪潜在客户</p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">
             <button
               onClick={() => setMode("chat")}
-              className="group relative overflow-hidden bg-white rounded-2xl p-8 border-2 border-gray-200 hover:border-purple-500 transition-all hover:shadow-xl"
+              className="group relative overflow-hidden bg-white rounded-2xl p-8 border-2 border-gray-200 hover:border-purple-500 transition-all hover:shadow-xl text-left"
             >
               <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-100 to-transparent rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform" />
               <div className="relative">
                 <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center mb-4">
                   <Sparkles className="w-7 h-7 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">AI对话模式</h3>
-                <p className="text-gray-600 text-left">通过自然对话，让AI理解您的需求并自动配置监测系统</p>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">对话式搜索</h3>
+                <p className="text-gray-600">只需几句话，AI 就能理解您的需求并开始实时抓取线索</p>
                 <div className="mt-6 flex items-center text-purple-600 font-medium">
-                  开始对话 <ArrowRight className="ml-2 w-5 h-5" />
+                  立即开始 <ArrowRight className="ml-2 w-5 h-5" />
                 </div>
               </div>
             </button>
 
             <button
               onClick={() => setMode("form")}
-              className="group relative overflow-hidden bg-white rounded-2xl p-8 border-2 border-gray-200 hover:border-blue-500 transition-all hover:shadow-xl"
+              className="group relative overflow-hidden bg-white rounded-2xl p-8 border-2 border-gray-200 hover:border-blue-500 transition-all hover:shadow-xl text-left"
             >
               <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-100 to-transparent rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform" />
               <div className="relative">
@@ -167,18 +200,18 @@ export function AIQuestionnaire() {
                     />
                   </svg>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">问卷表单模式</h3>
-                <p className="text-gray-600 text-left">按照结构化问卷逐步填写，精确配置您的监测偏好</p>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">问卷精准配置</h3>
+                <p className="text-gray-600">通过结构化问卷，精确定义您关注的平台、地区和关键词</p>
                 <div className="mt-6 flex items-center text-blue-600 font-medium">
-                  填写问卷 <ArrowRight className="ml-2 w-5 h-5" />
+                  按步骤填写 <ArrowRight className="ml-2 w-5 h-5" />
                 </div>
               </div>
             </button>
           </div>
 
           <div className="mt-8 text-center">
-            <button onClick={() => router.push("/")} className="text-gray-500 hover:text-gray-700 text-sm font-medium">
-              跳过，直接进入控制台
+            <button onClick={() => isModal ? onComplete?.([]) : router.push("/")} className="text-gray-400 hover:text-gray-600 text-sm font-medium">
+              暂时跳过，进入控制台
             </button>
           </div>
         </div>
@@ -188,67 +221,60 @@ export function AIQuestionnaire() {
 
   if (mode === "chat") {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 flex items-center justify-center p-4">
-        <div className="max-w-3xl w-full bg-white rounded-2xl shadow-2xl overflow-hidden">
-          <div className="bg-gradient-to-r from-purple-600 to-blue-600 p-6">
-            <h2 className="text-2xl font-bold text-white">AI对话配置</h2>
-            <p className="text-purple-100 mt-1">告诉我您的需求，我会帮您设置监测系统</p>
+      <div className={`w-full flex items-center justify-center p-4 ${isModal ? '' : 'min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50'}`}>
+        <div className="max-w-3xl w-full bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100">
+          <div className="bg-gradient-to-r from-purple-600 to-blue-600 p-8 text-white">
+            <h2 className="text-2xl font-bold">AI 对话搜索</h2>
+            <p className="text-purple-100 mt-1 opacity-90">描述您的业务，我们将为您定位潜在客户</p>
           </div>
 
-          <div className="h-[500px] overflow-y-auto p-6 space-y-4">
+          <div className="h-[450px] overflow-y-auto p-8 space-y-6 bg-gray-50/30">
             {chatMessages.map((msg, idx) => (
               <div key={idx} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
                 <div
-                  className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+                  className={`max-w-[85%] rounded-2xl px-5 py-3 shadow-sm ${
                     msg.role === "user"
-                      ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white"
-                      : "bg-gray-100 text-gray-900"
+                      ? "bg-purple-600 text-white"
+                      : "bg-white text-gray-800 border border-gray-100"
                   }`}
                 >
-                  {msg.content}
+                  <p className="text-[15px] leading-relaxed">{msg.content}</p>
                 </div>
               </div>
             ))}
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-gray-100 rounded-2xl px-4 py-3">
-                  <div className="flex gap-1">
-                    <div
-                      className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-                      style={{ animationDelay: "0ms" }}
-                    />
-                    <div
-                      className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-                      style={{ animationDelay: "150ms" }}
-                    />
-                    <div
-                      className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-                      style={{ animationDelay: "300ms" }}
-                    />
-                  </div>
+                <div className="bg-white border border-gray-100 rounded-2xl px-5 py-3 shadow-sm">
+                  <Loader2 className="w-5 h-5 text-purple-600 animate-spin" />
                 </div>
               </div>
             )}
           </div>
 
-          <form onSubmit={handleChatSubmit} className="border-t p-4 flex gap-2">
+          <form onSubmit={handleChatSubmit} className="p-6 bg-white border-t border-gray-100 flex gap-3">
             <Input
               value={chatInput}
               onChange={(e) => setChatInput(e.target.value)}
-              placeholder="输入您的需求..."
-              className="flex-1"
+              placeholder="例如：我是一家做香港网站建设的公司，想找需要开发服务的客户..."
+              className="flex-1 py-6 rounded-xl border-gray-200 focus:ring-purple-500/20"
               disabled={isLoading}
             />
-            <Button type="submit" disabled={isLoading} size="icon">
-              <Send className="w-4 h-4" />
+            <Button type="submit" disabled={isLoading || !chatInput.trim()} className="h-auto px-6 rounded-xl bg-purple-600 hover:bg-purple-700 shadow-md">
+              <Send className="w-5 h-5" />
             </Button>
           </form>
 
-          <div className="border-t p-4 bg-gray-50 flex justify-between">
-            <Button variant="outline" onClick={() => setMode("choice")}>
+          <div className="px-8 py-5 bg-gray-50 border-t border-gray-100 flex justify-between items-center">
+            <Button variant="ghost" onClick={() => setMode("choice")} className="text-gray-500">
               返回
             </Button>
-            <Button onClick={handleComplete}>完成配置</Button>
+            <Button 
+              onClick={handleComplete} 
+              className="bg-green-600 hover:bg-green-700 text-white rounded-lg px-8 font-bold"
+              disabled={chatMessages.length < 2}
+            >
+              开始全网扫描
+            </Button>
           </div>
         </div>
       </div>
@@ -260,29 +286,29 @@ export function AIQuestionnaire() {
   const progress = ((currentStep + 1) / questions.length) * 100
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 flex items-center justify-center p-4">
-      <div className="max-w-2xl w-full bg-white rounded-2xl shadow-2xl overflow-hidden">
-        <div className="bg-gradient-to-r from-purple-600 to-blue-600 p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold text-white">配置监测系统</h2>
-            <span className="text-purple-100 text-sm">
-              {currentStep + 1} / {questions.length}
+    <div className={`w-full flex items-center justify-center p-4 ${isModal ? '' : 'min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50'}`}>
+      <div className="max-w-2xl w-full bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100">
+        <div className="bg-gradient-to-r from-purple-600 to-blue-600 p-8">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-white">精准意向配置</h2>
+            <span className="text-purple-100 text-sm font-bold bg-white/10 px-3 py-1 rounded-full">
+              步骤 {currentStep + 1} / {questions.length}
             </span>
           </div>
-          <div className="w-full bg-purple-300/30 rounded-full h-2">
-            <div className="bg-white h-2 rounded-full transition-all duration-300" style={{ width: `${progress}%` }} />
+          <div className="w-full bg-white/20 rounded-full h-2">
+            <div className="bg-white h-2 rounded-full transition-all duration-500 ease-out shadow-[0_0_8px_rgba(255,255,255,0.5)]" style={{ width: `${progress}%` }} />
           </div>
         </div>
 
-        <div className="p-8">
-          <h3 className="text-xl font-bold text-gray-900 mb-4">{currentQuestion.question}</h3>
+        <div className="p-10 min-h-[300px]">
+          <h3 className="text-2xl font-bold text-gray-900 mb-6">{currentQuestion.question}</h3>
 
           {currentQuestion.type === "text" && (
             <Input
               value={(formData[currentQuestion.id] as string) || ""}
               onChange={(e) => setFormData({ ...formData, [currentQuestion.id]: e.target.value })}
               placeholder={currentQuestion.placeholder}
-              className="text-lg"
+              className="text-lg py-7 rounded-xl border-2 focus:border-purple-500/50"
             />
           )}
 
@@ -291,12 +317,12 @@ export function AIQuestionnaire() {
               value={(formData[currentQuestion.id] as string) || ""}
               onChange={(e) => setFormData({ ...formData, [currentQuestion.id]: e.target.value })}
               placeholder={currentQuestion.placeholder}
-              className="text-lg min-h-[120px]"
+              className="text-lg min-h-[150px] rounded-xl border-2 focus:border-purple-500/50"
             />
           )}
 
           {currentQuestion.type === "multiselect" && currentQuestion.options && (
-            <div className="space-y-2">
+            <div className="grid grid-cols-2 gap-3">
               {currentQuestion.options.map((option) => {
                 const selected = ((formData[currentQuestion.id] as string[]) || []).includes(option)
                 return (
@@ -308,22 +334,14 @@ export function AIQuestionnaire() {
                       const updated = selected ? current.filter((item) => item !== option) : [...current, option]
                       setFormData({ ...formData, [currentQuestion.id]: updated })
                     }}
-                    className={`w-full text-left px-4 py-3 rounded-lg border-2 transition-all ${
-                      selected ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-gray-300"
+                    className={`text-left px-5 py-4 rounded-xl border-2 transition-all flex items-center justify-between ${
+                      selected 
+                      ? "border-purple-600 bg-purple-50 text-purple-700 shadow-sm" 
+                      : "border-gray-100 hover:border-gray-200 bg-gray-50/50"
                     }`}
                   >
-                    <div className="flex items-center justify-between">
-                      <span className="font-medium">{option}</span>
-                      {selected && (
-                        <svg className="w-5 h-5 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
-                          <path
-                            fillRule="evenodd"
-                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      )}
-                    </div>
+                    <span className="font-bold text-[15px]">{option}</span>
+                    {selected && <div className="w-5 h-5 bg-purple-600 rounded-full flex items-center justify-center"><Check className="w-3 h-3 text-white" /></div>}
                   </button>
                 )
               })}
@@ -331,15 +349,17 @@ export function AIQuestionnaire() {
           )}
         </div>
 
-        <div className="border-t p-6 flex justify-between bg-gray-50">
-          <Button variant="outline" onClick={handleFormBack} disabled={currentStep === 0}>
+        <div className="border-t p-8 flex justify-between bg-gray-50/50">
+          <Button variant="ghost" onClick={handleFormBack} disabled={currentStep === 0} className="text-gray-500 px-8">
             上一步
           </Button>
-          <div className="flex gap-2">
-            <Button variant="ghost" onClick={() => setMode("choice")}>
+          <div className="flex gap-3">
+            <Button variant="ghost" onClick={() => setMode("choice")} className="text-gray-400">
               取消
             </Button>
-            <Button onClick={handleFormNext}>{currentStep === questions.length - 1 ? "完成" : "下一步"}</Button>
+            <Button onClick={handleFormNext} className="bg-purple-600 hover:bg-purple-700 text-white rounded-lg px-10 font-bold shadow-lg transition-transform active:scale-95">
+              {currentStep === questions.length - 1 ? "完成并开始扫描" : "下一步"}
+            </Button>
           </div>
         </div>
       </div>

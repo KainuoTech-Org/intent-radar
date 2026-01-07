@@ -1,9 +1,14 @@
 "use client"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Sidebar } from "./sidebar"
 import { IntentCard } from "./intent-card"
-import { Search, Grid2x2, List, Bell } from "lucide-react"
-import { DEMO_INTENTS } from "@/lib/mock-data"
+import { Search, Grid2x2, List, Bell, Sparkles, Plus } from "lucide-react"
+import { AIQuestionnaire } from "./ai-questionnaire"
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 
 export interface Intent {
   id: string
@@ -24,29 +29,25 @@ export interface Intent {
 export function Inbox() {
   const [view, setView] = useState<"grid" | "list">("grid")
   const [searchQuery, setSearchQuery] = useState("")
-  const [isScanning, setIsScanning] = useState(false)
-  const [intents, setIntents] = useState<Intent[]>(DEMO_INTENTS)
+  const [intents, setIntents] = useState<Intent[]>([])
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
 
-  const handleScan = async () => {
-    setIsScanning(true)
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 3000))
-    
-    // Add a "real" new result to simulate a successful search
-    const newIntent: Intent = {
-      id: `new-${Date.now()}`,
-      platform: "x",
-      avatar: "https://unavatar.io/twitter/elonmusk",
-      author: "Elon Musk",
-      timeAgo: "Just now",
-      content: "We are looking for incredible engineers to join the AI team. If you've built great things, join us!",
-      intentScore: 98,
-      sourceUrl: "https://x.com/elonmusk",
-      timestamp: new Date(),
+  // Initialize from localStorage if available
+  useEffect(() => {
+    const saved = localStorage.getItem("scannedIntents")
+    if (saved) {
+      try {
+        setIntents(JSON.parse(saved))
+      } catch (e) {
+        console.error("Failed to load scanned intents", e)
+      }
     }
-    
-    setIntents(prev => [newIntent, ...prev])
-    setIsScanning(false)
+  }, [])
+
+  const handleScanComplete = (results: Intent[]) => {
+    setIntents(results)
+    localStorage.setItem("scannedIntents", JSON.stringify(results))
+    setIsDialogOpen(false)
   }
 
   const filteredIntents = intents.filter((intent) => {
@@ -78,27 +79,20 @@ export function Inbox() {
               </div>
             </div>
             <div className="flex items-center gap-4">
-              <button 
-                onClick={handleScan}
-                disabled={isScanning}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold transition-all shadow-sm ${
-                  isScanning 
-                  ? "bg-gray-100 text-gray-400 cursor-not-allowed" 
-                  : "bg-purple-600 text-white hover:bg-purple-700 active:scale-95"
-                }`}
-              >
-                {isScanning ? (
-                  <>
-                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Scanning Platforms...
-                  </>
-                ) : (
-                  <>
-                    <Search size={18} />
-                    Fetch Real-time Intents
-                  </>
-                )}
-              </button>
+              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogTrigger asChild>
+                  <button 
+                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold bg-purple-600 text-white hover:bg-purple-700 active:scale-95 transition-all shadow-md shadow-purple-100"
+                  >
+                    <Sparkles size={18} />
+                    AI搜索助手
+                  </button>
+                </DialogTrigger>
+                <DialogContent className="max-w-4xl p-0 overflow-hidden bg-transparent border-none shadow-none">
+                  <AIQuestionnaire isModal onComplete={handleScanComplete} />
+                </DialogContent>
+              </Dialog>
+
               <button className="relative p-2.5 hover:bg-gray-100 rounded-xl transition-colors">
                 <Bell size={20} className="text-gray-700" />
                 <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white" />
@@ -158,8 +152,27 @@ export function Inbox() {
 
         <div className="flex-1 overflow-auto px-8 py-6 bg-[#f5f6fa]">
           {filteredIntents.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-center">
-              <p className="text-gray-500 text-lg">No intents found matching "{searchQuery}"</p>
+            <div className="flex flex-col items-center justify-center h-full text-center max-w-md mx-auto">
+              <div className="w-20 h-20 rounded-2xl bg-purple-50 flex items-center justify-center mb-6">
+                <Sparkles className="w-10 h-10 text-purple-400" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">
+                {searchQuery ? "未找到匹配意向" : "您的雷达尚未启动"}
+              </h3>
+              <p className="text-gray-500 mb-8 leading-relaxed">
+                {searchQuery 
+                  ? `没有找到包含 "${searchQuery}" 的意向帖子，请尝试更换关键词。`
+                  : "点击右上角的 AI搜索助手，通过对话或问卷告诉 AI 您的业务需求，我们将为您全网搜寻潜在客户。"}
+              </p>
+              {!searchQuery && (
+                <button 
+                  onClick={() => setIsDialogOpen(true)}
+                  className="flex items-center gap-2 px-8 py-3 rounded-xl font-bold bg-purple-600 text-white hover:bg-purple-700 transition-all shadow-lg shadow-purple-100 active:scale-95"
+                >
+                  <Plus size={20} />
+                  立即配置雷达
+                </button>
+              )}
             </div>
           ) : (
             <div

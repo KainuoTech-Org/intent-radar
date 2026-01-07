@@ -14,6 +14,28 @@ export interface Intent {
   }
 }
 
+// This file now only contains the structure and some reference data.
+// The actual application starts with an empty state to ensure "realism".
+
+// This file now only contains demo/mock data for PREVIEW purposes.
+// It is NOT used for the initial load of the application anymore.
+
+export interface Intent {
+  id: string
+  platform: "xiaohongshu" | "linkedin" | "x" | "telegram" | "reddit" | "facebook" | "instagram"
+  avatar: string
+  author: string
+  timeAgo: string
+  content: string
+  intentScore: number
+  sourceUrl: string
+  timestamp: Date
+  topComment?: {
+    author: string
+    content: string
+  }
+}
+
 export const DEMO_INTENTS: Intent[] = [
   {
     id: "1",
