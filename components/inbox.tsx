@@ -15,11 +15,25 @@ export interface Intent {
   intentScore: number
   sourceUrl: string
   timestamp?: Date
+  topComment?: {
+    author: string
+    content: string
+  }
 }
 
 export function Inbox() {
   const [view, setView] = useState<"grid" | "list">("grid")
+  const [searchQuery, setSearchQuery] = useState("")
   const [intents] = useState<Intent[]>(DEMO_INTENTS)
+
+  const filteredIntents = intents.filter((intent) => {
+    const searchLower = searchQuery.toLowerCase()
+    return (
+      intent.author.toLowerCase().includes(searchLower) ||
+      intent.content.toLowerCase().includes(searchLower) ||
+      intent.platform.toLowerCase().includes(searchLower)
+    )
+  })
 
   return (
     <div className="flex h-screen bg-[#f5f6fa] text-foreground">
@@ -34,6 +48,8 @@ export function Inbox() {
                 <input
                   type="text"
                   placeholder="Search intents..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full bg-gray-50 text-gray-900 placeholder:text-gray-400 rounded-xl pl-11 pr-4 py-3 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500 transition-all"
                 />
               </div>
@@ -61,7 +77,7 @@ export function Inbox() {
             <div className="flex gap-8">
               <button className="text-gray-900 font-semibold pb-3 border-b-2 border-purple-600 relative">
                 All
-                <span className="ml-2 text-sm text-gray-500">({intents.length})</span>
+                <span className="ml-2 text-sm text-gray-500">({filteredIntents.length})</span>
               </button>
               <button className="text-gray-500 hover:text-gray-900 pb-3 flex items-center gap-1.5 font-medium transition-colors">
                 AI Inbox
@@ -97,13 +113,19 @@ export function Inbox() {
         </div>
 
         <div className="flex-1 overflow-auto px-8 py-6 bg-[#f5f6fa]">
-          <div
-            className={`grid gap-8 ${view === "grid" ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3" : "grid-cols-1 max-w-4xl"}`}
-          >
-            {intents.map((intent) => (
-              <IntentCard key={intent.id} intent={intent} />
-            ))}
-          </div>
+          {filteredIntents.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-full text-center">
+              <p className="text-gray-500 text-lg">No intents found matching "{searchQuery}"</p>
+            </div>
+          ) : (
+            <div
+              className={`grid gap-8 ${view === "grid" ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3" : "grid-cols-1 max-w-4xl"}`}
+            >
+              {filteredIntents.map((intent) => (
+                <IntentCard key={intent.id} intent={intent} />
+              ))}
+            </div>
+          )}
         </div>
       </main>
     </div>

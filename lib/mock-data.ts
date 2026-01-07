@@ -8,6 +8,10 @@ export interface Intent {
   intentScore: number
   sourceUrl: string
   timestamp: Date
+  topComment?: {
+    author: string
+    content: string
+  }
 }
 
 export const DEMO_INTENTS: Intent[] = [
@@ -21,6 +25,10 @@ export const DEMO_INTENTS: Intent[] = [
     intentScore: 95,
     sourceUrl: "https://www.xiaohongshu.com/explore/65f3a2b1000000001e03f4d2",
     timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
+    topComment: {
+      author: "TechHunter",
+      content: "已私信，我有5年React经验，目前在香港。",
+    },
   },
   {
     id: "2",
@@ -33,6 +41,10 @@ export const DEMO_INTENTS: Intent[] = [
     intentScore: 92,
     sourceUrl: "https://www.linkedin.com/posts/sarahliu_hiring-tech-hongkong-activity-7150234567890123456",
     timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000),
+    topComment: {
+      author: "John Doe",
+      content: "Interested! Just sent you my portfolio.",
+    },
   },
   {
     id: "3",

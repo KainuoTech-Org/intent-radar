@@ -14,6 +14,7 @@ interface Lead extends Intent {
 export default function LeadsPage() {
   const [leads, setLeads] = useState<Lead[]>([])
   const [filter, setFilter] = useState<"all" | "new" | "contacting" | "closed" | "abandoned">("all")
+  const [searchQuery, setSearchQuery] = useState("")
 
   useEffect(() => {
     const loadLeads = () => {
@@ -30,7 +31,15 @@ export default function LeadsPage() {
     return () => window.removeEventListener("storage", loadLeads)
   }, [])
 
-  const filteredLeads = filter === "all" ? leads : leads.filter((lead) => lead.status === filter)
+  const filteredLeads = leads.filter((lead) => {
+    const matchesFilter = filter === "all" || lead.status === filter
+    const searchLower = searchQuery.toLowerCase()
+    const matchesSearch =
+      lead.author.toLowerCase().includes(searchLower) ||
+      lead.content.toLowerCase().includes(searchLower) ||
+      lead.platform.toLowerCase().includes(searchLower)
+    return matchesFilter && matchesSearch
+  })
 
   const statusCounts = {
     all: leads.length,
@@ -75,6 +84,33 @@ export default function LeadsPage() {
     abandoned: XCircle,
   }
 
+  const handleUpdateStatus = (id: string, newStatus: Lead["status"]) => {
+    const savedIntentsData = JSON.parse(localStorage.getItem("savedIntentsData") || "{}")
+    if (savedIntentsData[id]) {
+      savedIntentsData[id].status = newStatus
+      localStorage.setItem("savedIntentsData", JSON.stringify(savedIntentsData))
+      
+      // Force update local state
+      setLeads(Object.values(savedIntentsData).sort((a: any, b: any) => 
+        new Date(b.savedAt).getTime() - new Date(a.savedAt).getTime()
+      ) as Lead[])
+    }
+  }
+
+  const handleUpdateNote = (id: string, note: string) => {
+    const savedIntentsData = JSON.parse(localStorage.getItem("savedIntentsData") || "{}")
+    if (savedIntentsData[id]) {
+      if (!savedIntentsData[id].notes) savedIntentsData[id].notes = []
+      savedIntentsData[id].notes.push(note)
+      localStorage.setItem("savedIntentsData", JSON.stringify(savedIntentsData))
+      
+      // Force update local state
+      setLeads(Object.values(savedIntentsData).sort((a: any, b: any) => 
+        new Date(b.savedAt).getTime() - new Date(a.savedAt).getTime()
+      ) as Lead[])
+    }
+  }
+
   return (
     <div className="flex h-screen bg-background">
       <Sidebar />
@@ -100,6 +136,8 @@ export default function LeadsPage() {
               <input
                 type="text"
                 placeholder="Search leads..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full bg-input text-foreground placeholder:text-muted-foreground rounded-xl pl-12 pr-4 py-3 border-0 focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
             </div>
@@ -167,12 +205,18 @@ export default function LeadsPage() {
             </div>
           ) : filteredLeads.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center">
-              <p className="text-muted-foreground">No leads found with status: {filter}</p>
+              <p className="text-muted-foreground">No leads found with search/status: {searchQuery || filter}</p>
             </div>
           ) : (
             <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
               {filteredLeads.map((lead) => (
-                <IntentCard key={lead.id} intent={lead} />
+                <IntentCard 
+                  key={lead.id} 
+                  intent={lead} 
+                  showStatus={true}
+                  onUpdateStatus={(newStatus) => handleUpdateStatus(lead.id, newStatus)}
+                  onUpdateNote={(note) => handleUpdateNote(lead.id, note)}
+                />
               ))}
             </div>
           )}

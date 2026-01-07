@@ -1,8 +1,15 @@
 "use client"
 import type { Intent } from "./inbox"
-import { ExternalLink, Bookmark, BookmarkCheck } from "lucide-react"
+import { ExternalLink, Bookmark, BookmarkCheck, MessageSquare, Plus, Check, MoreVertical } from "lucide-react"
 import { useState, useEffect } from "react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
+// ... PlatformIcons remains same ...
 const PlatformIcons = {
   xiaohongshu: ({ size = 36 }: { size?: number }) => (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
@@ -55,8 +62,18 @@ const PLATFORM_CONFIG: Record<string, { bg: string; textColor: string }> = {
   instagram: { bg: "bg-gradient-to-br from-purple-600 via-pink-600 to-orange-500", textColor: "text-white" },
 }
 
-export function IntentCard({ intent }: { intent: Intent }) {
+interface IntentCardProps {
+  intent: Intent & { status?: string; notes?: string[] }
+  showStatus?: boolean
+  onUpdateStatus?: (status: "new" | "contacting" | "closed" | "abandoned") => void
+  onUpdateNote?: (note: string) => void
+}
+
+export function IntentCard({ intent, showStatus = false, onUpdateStatus, onUpdateNote }: IntentCardProps) {
   const [isSaved, setIsSaved] = useState(false)
+  const [noteInput, setNoteInput] = useState("")
+  const [showNotes, setShowNotes] = useState(false)
+  
   const platformConfig = PLATFORM_CONFIG[intent.platform]
   const PlatformIcon = PlatformIcons[intent.platform]
 
@@ -82,7 +99,6 @@ export function IntentCard({ intent }: { intent: Intent }) {
       delete savedIntentsData[intent.id]
       localStorage.setItem("savedIntentsData", JSON.stringify(savedIntentsData))
       setIsSaved(false)
-      console.log("[v0] Intent unsaved:", intent.id)
     } else {
       savedLeads.push(intent.id)
       localStorage.setItem("savedLeads", JSON.stringify(savedLeads))
@@ -90,10 +106,20 @@ export function IntentCard({ intent }: { intent: Intent }) {
         ...intent,
         savedAt: new Date().toISOString(),
         status: "new",
+        notes: [],
       }
       localStorage.setItem("savedIntentsData", JSON.stringify(savedIntentsData))
       setIsSaved(true)
-      console.log("[v0] Intent saved:", intent.id)
+    }
+    // Dispatch storage event for other components
+    window.dispatchEvent(new Event("storage"))
+  }
+
+  const handleAddNote = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (noteInput.trim() && onUpdateNote) {
+      onUpdateNote(noteInput.trim())
+      setNoteInput("")
     }
   }
 
@@ -107,7 +133,29 @@ export function IntentCard({ intent }: { intent: Intent }) {
           <PlatformIcon size={36} />
         </div>
 
-        <div className="mb-5">
+        {showStatus && (
+          <div className="absolute top-4 left-4 z-10">
+            <DropdownMenu>
+              <DropdownMenuTrigger className="flex items-center gap-2 px-2 py-1 bg-white/80 border border-gray-200 rounded-lg text-xs font-semibold shadow-sm hover:bg-white transition-colors capitalize">
+                <div className={`w-2 h-2 rounded-full ${
+                  intent.status === 'new' ? 'bg-blue-500' : 
+                  intent.status === 'contacting' ? 'bg-orange-500' :
+                  intent.status === 'closed' ? 'bg-green-500' : 'bg-gray-400'
+                }`} />
+                {intent.status}
+                <MoreVertical size={14} className="text-gray-400" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start">
+                <DropdownMenuItem onClick={() => onUpdateStatus?.('new')}>New</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onUpdateStatus?.('contacting')}>Contacting</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onUpdateStatus?.('closed')}>Closed</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onUpdateStatus?.('abandoned')}>Abandoned</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        )}
+
+        <div className="mb-5 mt-2">
           <div className="flex items-center gap-3 mb-5">
             <img
               src={intent.avatar || "/placeholder.svg"}
@@ -128,7 +176,55 @@ export function IntentCard({ intent }: { intent: Intent }) {
               {intent.content}
             </p>
           </button>
+
+          {intent.topComment && (
+            <div className="mt-4 p-3 bg-gray-50/50 rounded-xl border border-gray-100">
+              <div className="flex items-center gap-2 mb-1">
+                <MessageSquare size={14} className="text-purple-500" />
+                <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Top Comment</span>
+              </div>
+              <p className="text-xs text-gray-600 italic line-clamp-2">
+                "{intent.topComment.content}" — <span className="font-medium">{intent.topComment.author}</span>
+              </p>
+            </div>
+          )}
         </div>
+
+        {showStatus && intent.notes && intent.notes.length > 0 && (
+          <div className="mb-4">
+             <button 
+              onClick={() => setShowNotes(!showNotes)}
+              className="text-[11px] font-bold text-gray-400 hover:text-purple-600 transition-colors uppercase tracking-wider mb-2 flex items-center gap-1"
+             >
+               Notes ({intent.notes.length})
+               <span className={`transition-transform ${showNotes ? 'rotate-180' : ''}`}>▼</span>
+             </button>
+             {showNotes && (
+               <div className="space-y-2 max-h-32 overflow-y-auto pr-1">
+                 {intent.notes.map((note, idx) => (
+                   <div key={idx} className="p-2 bg-purple-50/50 border border-purple-100/50 rounded-lg text-[11px] text-purple-800">
+                     {note}
+                   </div>
+                 ))}
+               </div>
+             )}
+          </div>
+        )}
+
+        {showStatus && (
+          <form onSubmit={handleAddNote} className="mb-5 flex gap-2">
+            <input 
+              type="text" 
+              placeholder="Add follow-up note..." 
+              value={noteInput}
+              onChange={(e) => setNoteInput(e.target.value)}
+              className="flex-1 bg-gray-50 text-[11px] border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-purple-500/30"
+            />
+            <button type="submit" className="p-2 bg-purple-100 text-purple-600 rounded-lg hover:bg-purple-200 transition-colors">
+              <Plus size={16} />
+            </button>
+          </form>
+        )}
 
         <div className="mt-auto space-y-2.5">
           <div className="flex justify-between items-center">
@@ -160,17 +256,19 @@ export function IntentCard({ intent }: { intent: Intent }) {
             <ExternalLink size={16} />
             View Post
           </button>
-          <button
-            onClick={handleSave}
-            className={`flex-1 flex items-center justify-center gap-2 rounded-lg py-2.5 transition-all text-sm font-medium ${
-              isSaved
-                ? "bg-purple-50 text-purple-700 hover:bg-purple-100 border border-purple-200"
-                : "bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200"
-            }`}
-          >
-            {isSaved ? <BookmarkCheck size={16} /> : <Bookmark size={16} />}
-            {isSaved ? "Saved" : "Save"}
-          </button>
+          {!showStatus && (
+            <button
+              onClick={handleSave}
+              className={`flex-1 flex items-center justify-center gap-2 rounded-lg py-2.5 transition-all text-sm font-medium ${
+                isSaved
+                  ? "bg-purple-50 text-purple-700 hover:bg-purple-100 border border-purple-200"
+                  : "bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200"
+              }`}
+            >
+              {isSaved ? <BookmarkCheck size={16} /> : <Bookmark size={16} />}
+              {isSaved ? "Saved" : "Save"}
+            </button>
+          )}
         </div>
       </div>
     </div>
