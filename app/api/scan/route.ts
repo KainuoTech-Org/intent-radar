@@ -115,6 +115,7 @@ export async function POST(req: Request) {
     return Response.json({ 
       success: true, 
       intents: processedIntents,
+      timestamp: Date.now(), // Force fresh response
       message: allRealPosts.length > 0 ? "已为您从全网实时抓取并分析真实意向线索。" : "实时抓取完成，已为您智能补全高匹配线索。"
     })
 
