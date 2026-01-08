@@ -8,7 +8,10 @@ import {
   Dialog,
   DialogContent,
   DialogTrigger,
+  DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog"
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 
 export interface Intent {
   id: string
@@ -90,6 +93,12 @@ export function Inbox() {
                   </button>
                 </DialogTrigger>
                 <DialogContent className="max-w-[1000px] p-0 overflow-hidden bg-transparent border-none shadow-none focus:outline-none">
+                  <VisuallyHidden>
+                    <DialogTitle>AI Search Assistant</DialogTitle>
+                    <DialogDescription>
+                      Configure your search parameters using AI to find potential leads.
+                    </DialogDescription>
+                  </VisuallyHidden>
                   <AIQuestionnaire isModal onComplete={handleScanComplete} />
                 </DialogContent>
               </Dialog>
