@@ -34,9 +34,13 @@ export function Inbox() {
   const [searchQuery, setSearchQuery] = useState("")
   const [intents, setIntents] = useState<Intent[]>([])
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [dailyScans, setDailyScans] = useState(0)
+  const MAX_FREE_SCANS = 3
+  const MAX_FREE_VIEW = 5
 
-  // Initialize from localStorage if available
+  // Initialize from localStorage
   useEffect(() => {
+    // 1. Load Intents
     const saved = localStorage.getItem("scannedIntents")
     if (saved) {
       try {
@@ -45,10 +49,26 @@ export function Inbox() {
         console.error("Failed to load scanned intents", e)
       }
     }
+
+    // 2. Manage Daily Scans
+    const today = new Date().toDateString()
+    const scanData = JSON.parse(localStorage.getItem("scanUsage") || "{}")
+    if (scanData.date !== today) {
+      localStorage.setItem("scanUsage", JSON.stringify({ date: today, count: 0 }))
+      setDailyScans(0)
+    } else {
+      setDailyScans(scanData.count)
+    }
   }, [])
 
   const handleScanComplete = (results: Intent[]) => {
-    // Only keep the newly scanned results to ensure "freshness" and avoid preset duplication
+    // Increment scan count
+    const today = new Date().toDateString()
+    const newCount = dailyScans + 1
+    localStorage.setItem("scanUsage", JSON.stringify({ date: today, count: newCount }))
+    setDailyScans(newCount)
+
+    // Update Intents
     setIntents(results)
     localStorage.setItem("scannedIntents", JSON.stringify(results))
     setIsDialogOpen(false)
@@ -83,13 +103,28 @@ export function Inbox() {
               </div>
             </div>
             <div className="flex items-center gap-4">
-              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <div className="hidden md:flex flex-col items-end mr-2">
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Daily Radar</p>
+                <p className="text-xs font-bold text-purple-600">{dailyScans} / {MAX_FREE_SCANS} Scans</p>
+              </div>
+              <Dialog open={isDialogOpen} onOpenChange={(open) => {
+                if (open && dailyScans >= MAX_FREE_SCANS) {
+                  alert("今日免费扫描次数已用完，明天再来或升级 Pro 版解锁无限扫描！");
+                  return;
+                }
+                setIsDialogOpen(open);
+              }}>
                 <DialogTrigger asChild>
                   <button 
-                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold bg-purple-600 text-white hover:bg-purple-700 active:scale-95 transition-all shadow-md shadow-purple-100"
+                    disabled={dailyScans >= MAX_FREE_SCANS}
+                    className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold transition-all shadow-md ${
+                      dailyScans >= MAX_FREE_SCANS 
+                      ? "bg-gray-100 text-gray-400 cursor-not-allowed" 
+                      : "bg-purple-600 text-white hover:bg-purple-700 active:scale-95 shadow-purple-100"
+                    }`}
                   >
                     <Sparkles size={18} />
-                    AI搜索助手
+                    {dailyScans >= MAX_FREE_SCANS ? "次数已满" : "AI搜索助手"}
                   </button>
                 </DialogTrigger>
                 <DialogContent className="max-w-[1000px] p-0 overflow-hidden bg-transparent border-none shadow-none focus:outline-none">
@@ -182,9 +217,25 @@ export function Inbox() {
             <div
               className={`grid gap-8 ${view === "grid" ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3" : "grid-cols-1 max-w-4xl"}`}
             >
-              {filteredIntents.map((intent) => (
+              {filteredIntents.slice(0, MAX_FREE_VIEW).map((intent) => (
                 <IntentCard key={intent.id} intent={intent} />
               ))}
+              
+              {filteredIntents.length > MAX_FREE_VIEW && (
+                <div className="rounded-2xl p-8 flex flex-col items-center justify-center text-center bg-gradient-to-b from-purple-50/50 to-white border-2 border-dashed border-purple-200 shadow-sm min-h-[300px]">
+                  <div className="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center mb-4">
+                    <Plus className="w-8 h-8 text-purple-600" />
+                  </div>
+                  <h4 className="text-lg font-bold text-gray-900 mb-2">雷达探测到更多结果</h4>
+                  <p className="text-sm text-gray-500 mb-6 px-4">
+                    当前关键词下还有 <span className="font-bold text-purple-600">{filteredIntents.length - MAX_FREE_VIEW}</span> 条匹配线索。
+                    升级到 <span className="font-bold text-gray-900">Pro 计划</span> 即可查看全部高意向商机并开启实时监测推送。
+                  </p>
+                  <button className="px-6 py-2.5 rounded-xl font-bold bg-gray-900 text-white hover:bg-black transition-all active:scale-95 shadow-lg shadow-gray-200">
+                    了解 Pro 计划
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
