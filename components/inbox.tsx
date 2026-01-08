@@ -62,15 +62,20 @@ export function Inbox() {
   }, [])
 
   const handleScanComplete = (results: Intent[]) => {
-    // Increment scan count
+    // 1. Increment scan count
     const today = new Date().toDateString()
     const newCount = dailyScans + 1
     localStorage.setItem("scanUsage", JSON.stringify({ date: today, count: newCount }))
     setDailyScans(newCount)
 
-    // Update Intents
-    setIntents(results)
-    localStorage.setItem("scannedIntents", JSON.stringify(results))
+    // 2. Logic: If results is empty, don't clear the old successful scan!
+    if (results && results.length > 0) {
+      setIntents(results)
+      localStorage.setItem("scannedIntents", JSON.stringify(results))
+    } else {
+      alert("全网雷达监测中：本次扫描未发现符合您业务特征的新意向，已为您保留之前的线索。建议尝试更换关键词或稍后再试。")
+    }
+    
     setIsDialogOpen(false)
   }
 
