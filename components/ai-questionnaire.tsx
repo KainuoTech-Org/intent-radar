@@ -6,7 +6,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { ArrowRight, Sparkles, Send, Loader2 } from "lucide-react"
+import { ArrowRight, Sparkles, Send, Loader2, Check } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { DEMO_INTENTS } from "@/lib/mock-data"
 import type { Intent } from "./inbox"
@@ -113,18 +113,50 @@ export function AIQuestionnaire({
 
   const handleComplete = async () => {
     setMode("scanning")
-    // Simulate real scanning process
-    await new Promise(resolve => setTimeout(resolve, 3000))
+    setIsLoading(true)
     
-    // In a real app, DEMO_INTENTS would be replaced by actual search results from API
-    // based on formData or chat content.
-    const results = [...DEMO_INTENTS].sort(() => Math.random() - 0.5).slice(0, 6)
-    
-    if (onComplete) {
-      onComplete(results)
-    } else {
-      localStorage.setItem("scannedIntents", JSON.stringify(results))
-      router.push("/")
+    try {
+      // 提取关键词 (从 formData 或 chatMessages)
+      const business = formData.business as string || "Web Development"
+      const keywords = typeof formData.keywords === 'string' ? formData.keywords.split(/[，, ]+/) : ["service", "need"]
+      const platforms = (formData.platforms as string[]) || ["xiaohongshu", "linkedin"]
+
+      const response = await fetch("/api/scan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ business, keywords, platforms }),
+      })
+
+      const data = await response.json()
+      
+      if (data.success && data.intents) {
+        // 转换后端数据结构为前端 Intent 接口
+        const formattedResults: Intent[] = data.intents.map((item: any) => ({
+          id: item.id,
+          platform: item.platform,
+          avatar: item.author_avatar,
+          author: item.author_name,
+          timeAgo: "刚刚发现",
+          content: item.content,
+          intentScore: item.ai_score,
+          sourceUrl: item.source_url,
+          timestamp: new Date(item.posted_at),
+        }))
+
+        if (onComplete) {
+          onComplete(formattedResults)
+        } else {
+          localStorage.setItem("scannedIntents", JSON.stringify(formattedResults))
+          router.push("/")
+        }
+      }
+    } catch (error) {
+      console.error("Scanning failed:", error)
+      // Fallback if API fails
+      const results = [...DEMO_INTENTS].sort(() => Math.random() - 0.5).slice(0, 3)
+      if (onComplete) onComplete(results)
+    } finally {
+      setIsLoading(false)
     }
   }
 
