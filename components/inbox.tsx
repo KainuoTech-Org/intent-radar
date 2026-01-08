@@ -35,8 +35,8 @@ export function Inbox() {
   const [intents, setIntents] = useState<Intent[]>([])
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [dailyScans, setDailyScans] = useState(0)
-  const MAX_FREE_SCANS = 3
-  const MAX_FREE_VIEW = 5
+  const MAX_FREE_SCANS = 9999
+  const MAX_FREE_VIEW = 9999
 
   // Initialize from localStorage
   useEffect(() => {
@@ -109,8 +109,8 @@ export function Inbox() {
             </div>
             <div className="flex items-center gap-4">
               <div className="hidden md:flex flex-col items-end mr-2">
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Daily Radar</p>
-                <p className="text-xs font-bold text-purple-600">{dailyScans} / {MAX_FREE_SCANS} Scans</p>
+                <p className="text-[10px] font-bold text-purple-600 uppercase tracking-widest">Pro Plan</p>
+                <p className="text-xs font-bold text-gray-900">Unlimited Radar</p>
               </div>
               <Dialog open={isDialogOpen} onOpenChange={(open) => {
                 if (open && dailyScans >= MAX_FREE_SCANS) {
