@@ -1,7 +1,5 @@
 "use client"
 
-"use client"
-
 import { useState, useEffect } from "react"
 import { PageLayout } from "@/components/page-layout"
 import { Sparkles } from "lucide-react"
@@ -79,17 +77,22 @@ export default function Page() {
     const saved = localStorage.getItem("scannedIntents")
     if (saved) {
       try {
-        setIntents(JSON.parse(saved))
+        const parsed = JSON.parse(saved)
+        console.log("[IntentRadar] Loaded intents from storage:", parsed.length)
+        setIntents(parsed)
       } catch (e) {
-        console.error("Failed to load scanned intents", e)
+        console.error("[IntentRadar] Failed to load scanned intents", e)
       }
     }
   }, [])
 
   const handleScanComplete = (results: Intent[]) => {
+    console.log("[IntentRadar] Scan complete, results:", results.length)
     if (results && results.length > 0) {
       setIntents(results)
       localStorage.setItem("scannedIntents", JSON.stringify(results))
+      // Trigger event for other tabs/pages
+      window.dispatchEvent(new Event("storage"))
     }
   }
 
