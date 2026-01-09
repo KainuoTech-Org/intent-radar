@@ -3,7 +3,22 @@
 import { PageLayout } from "@/components/page-layout"
 import { Clock, Trash2, Filter } from "lucide-react"
 import { useState, useEffect } from "react"
-import type { Intent } from "@/components/inbox"
+
+export interface Intent {
+  id: string
+  platform: "xiaohongshu" | "linkedin" | "x" | "telegram" | "reddit" | "facebook" | "instagram"
+  avatar: string
+  author: string
+  timeAgo: string
+  content: string
+  intentScore: number
+  sourceUrl: string
+  timestamp?: Date
+  topComment?: {
+    author: string
+    content: string
+  }
+}
 
 interface Lead extends Intent {
   savedAt: string
