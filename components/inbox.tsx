@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react"
 import { Sidebar } from "./sidebar"
 import { IntentCard } from "./intent-card"
-import { Search, Grid2x2, List, Bell, Sparkles, Plus } from "lucide-react"
+import { Search, Grid2x2, List, Bell, Sparkles, Plus, TrendingUp, MoreHorizontal, ArrowUpRight } from "lucide-react"
 import { AIQuestionnaire } from "./ai-questionnaire"
 import {
   Dialog,
@@ -30,7 +30,7 @@ export interface Intent {
 }
 
 export function Inbox() {
-  const [view, setView] = useState<"grid" | "list">("grid")
+  const [view, setView] = useState<"grid" | "list">("list")
   const [searchQuery, setSearchQuery] = useState("")
   const [intents, setIntents] = useState<Intent[]>([])
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -89,160 +89,204 @@ export function Inbox() {
   })
 
   return (
-    <div className="flex h-screen bg-[#f5f6fa] text-foreground">
+    <div className="flex h-screen bg-[#fbfbfb] text-[#212121]">
       <Sidebar />
 
-      <main className="flex-1 flex flex-col overflow-hidden">
-        <div className="border-b border-gray-200 px-8 py-5 bg-white/80 backdrop-blur-sm shadow-sm">
-          <div className="flex items-center justify-between">
-            <div className="flex-1 max-w-xl">
-              <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                <input
-                  type="text"
-                  placeholder="Search intents across all platforms..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-gray-50 text-gray-900 placeholder:text-gray-400 rounded-xl pl-11 pr-4 py-3 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500 transition-all"
-                />
-              </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="hidden md:flex flex-col items-end mr-2">
-                <p className="text-[10px] font-bold text-purple-600 uppercase tracking-widest">Pro Plan</p>
-                <p className="text-xs font-bold text-gray-900">Unlimited Radar</p>
-              </div>
-              <Dialog open={isDialogOpen} onOpenChange={(open) => {
-                if (open && dailyScans >= MAX_FREE_SCANS) {
-                  alert("今日免费扫描次数已用完，明天再来或升级 Pro 版解锁无限扫描！");
-                  return;
-                }
-                setIsDialogOpen(open);
-              }}>
-                <DialogTrigger asChild>
-                  <button 
-                    disabled={dailyScans >= MAX_FREE_SCANS}
-                    className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold transition-all shadow-md ${
-                      dailyScans >= MAX_FREE_SCANS 
-                      ? "bg-gray-100 text-gray-400 cursor-not-allowed" 
-                      : "bg-purple-600 text-white hover:bg-purple-700 active:scale-95 shadow-purple-100"
-                    }`}
-                  >
-                    <Sparkles size={18} />
-                    {dailyScans >= MAX_FREE_SCANS ? "次数已满" : "AI搜索助手"}
-                  </button>
-                </DialogTrigger>
-                <DialogContent className="max-w-[1000px] p-0 overflow-hidden bg-transparent border-none shadow-none focus:outline-none">
-                  <VisuallyHidden>
-                    <DialogTitle>AI Search Assistant</DialogTitle>
-                    <DialogDescription>
-                      Configure your search parameters using AI to find potential leads.
-                    </DialogDescription>
-                  </VisuallyHidden>
-                  <AIQuestionnaire isModal onComplete={handleScanComplete} />
-                </DialogContent>
-              </Dialog>
-
-              <button className="relative p-2.5 hover:bg-gray-100 rounded-xl transition-colors">
-                <Bell size={20} className="text-gray-700" />
-                <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white" />
-              </button>
-              <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-gray-200 shadow-sm">
-                <img
-                  src="https://unavatar.io/github/johnson"
-                  alt="User"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="px-8 pt-8 pb-5 bg-[#f5f6fa]">
-          <h1 className="text-[32px] font-bold mb-7 text-gray-900 tracking-tight">Unified Intent Inbox</h1>
-
-          <div className="flex items-center justify-between">
-            <div className="flex gap-8">
-              <button className="text-gray-900 font-semibold pb-3 border-b-2 border-purple-600 relative">
-                最近意向
-                <span className="ml-2 text-sm text-gray-400">({filteredIntents.length})</span>
-              </button>
-            </div>
-
-            <div className="flex items-center gap-1.5 bg-white rounded-lg p-1 shadow-sm border border-gray-200">
-              <button
-                onClick={() => setView("grid")}
-                className={`p-2.5 rounded-md transition-all ${
-                  view === "grid"
-                    ? "bg-purple-600 text-white shadow-sm"
-                    : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
-                }`}
-              >
-                <Grid2x2 size={18} />
-              </button>
-              <button
-                onClick={() => setView("list")}
-                className={`p-2.5 rounded-md transition-all ${
-                  view === "list"
-                    ? "bg-purple-600 text-white shadow-sm"
-                    : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
-                }`}
-              >
-                <List size={18} />
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex-1 overflow-auto px-8 py-6 bg-[#f5f6fa]">
-          {filteredIntents.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-center max-w-md mx-auto">
-              <div className="w-20 h-20 rounded-2xl bg-purple-50 flex items-center justify-center mb-6">
-                <Sparkles className="w-10 h-10 text-purple-400" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">
-                {searchQuery ? "未找到匹配意向" : "您的雷达尚未启动"}
-              </h3>
-              <p className="text-gray-500 mb-8 leading-relaxed">
-                {searchQuery 
-                  ? `没有找到包含 "${searchQuery}" 的意向帖子，请尝试更换关键词。`
-                  : "点击右上角的 AI搜索助手，通过对话或问卷告诉 AI 您的业务需求，我们将为您全网搜寻潜在客户。"}
-              </p>
-              {!searchQuery && (
-                <button 
-                  onClick={() => setIsDialogOpen(true)}
-                  className="flex items-center gap-2 px-8 py-3 rounded-xl font-bold bg-purple-600 text-white hover:bg-purple-700 transition-all shadow-lg shadow-purple-100 active:scale-95"
-                >
-                  <Plus size={20} />
-                  立即配置雷达
-                </button>
-              )}
-            </div>
-          ) : (
-            <div
-              className={`grid gap-8 ${view === "grid" ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3" : "grid-cols-1 max-w-4xl"}`}
-            >
-              {filteredIntents.slice(0, MAX_FREE_VIEW).map((intent) => (
-                <IntentCard key={intent.id} intent={intent} />
-              ))}
-              
-              {filteredIntents.length > MAX_FREE_VIEW && (
-                <div className="rounded-2xl p-8 flex flex-col items-center justify-center text-center bg-gradient-to-b from-purple-50/50 to-white border-2 border-dashed border-purple-200 shadow-sm min-h-[300px]">
-                  <div className="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center mb-4">
-                    <Plus className="w-8 h-8 text-purple-600" />
-                  </div>
-                  <h4 className="text-lg font-bold text-gray-900 mb-2">雷达探测到更多结果</h4>
-                  <p className="text-sm text-gray-500 mb-6 px-4">
-                    当前关键词下还有 <span className="font-bold text-purple-600">{filteredIntents.length - MAX_FREE_VIEW}</span> 条匹配线索。
-                    升级到 <span className="font-bold text-gray-900">Pro 计划</span> 即可查看全部高意向商机并开启实时监测推送。
-                  </p>
-                  <button className="px-6 py-2.5 rounded-xl font-bold bg-gray-900 text-white hover:bg-black transition-all active:scale-95 shadow-lg shadow-gray-200">
-                    了解 Pro 计划
-                  </button>
+      <main className="flex-1 flex flex-col overflow-y-auto">
+        {/* Top Header */}
+        <div className="px-10 py-6 flex items-center justify-between sticky top-0 bg-[#fbfbfb]/90 backdrop-blur-md z-10">
+            <h1 className="font-['Merriweather'] text-[24px] font-bold text-[#1f2937] tracking-tight">
+                Dashboard
+            </h1>
+            
+            <div className="flex items-center gap-6">
+                 {/* Search Bar */}
+                 <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                    <input
+                        type="text"
+                        placeholder="Search intents..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-[280px] bg-white text-gray-900 placeholder:text-gray-400 rounded-lg pl-10 pr-4 py-2 border border-gray-200 focus:outline-none focus:ring-1 focus:ring-gray-300 transition-all font-['Roboto'] text-sm shadow-sm"
+                    />
                 </div>
-              )}
+
+                {/* Notifications */}
+                <button className="relative p-2 hover:bg-gray-100 rounded-full transition-colors">
+                    <Bell size={20} className="text-gray-600" />
+                    <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-[#fbfbfb]" />
+                </button>
+
+                 {/* User Profile */}
+                <div className="flex items-center gap-3 cursor-pointer">
+                    <div className="text-right hidden md:block">
+                        <p className="text-sm font-semibold text-[#212121]">Johnson G.</p>
+                        <p className="text-xs text-gray-500">Premium Plan</p>
+                    </div>
+                    <img
+                        src="https://unavatar.io/github/johnson"
+                        alt="User"
+                        className="w-10 h-10 rounded-full object-cover border border-gray-200"
+                    />
+                </div>
             </div>
-          )}
+        </div>
+
+        <div className="px-10 pb-10 space-y-8">
+            {/* KPI Cards Section */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Intents Processed Card */}
+                <div className="bg-white rounded-2xl p-6 border border-[#e5e5e5] shadow-sm flex flex-col justify-between h-[160px]">
+                    <div className="flex justify-between items-start">
+                        <span className="font-['Roboto'] text-[16px] font-semibold text-[#1f2937]">Intents Processed</span>
+                        <MoreHorizontal size={20} className="text-gray-400 cursor-pointer" />
+                    </div>
+                    <div>
+                        <div className="flex items-end gap-3 mb-1">
+                            <span className="font-['Merriweather'] text-[36px] font-bold text-[#1f2937] leading-none">
+                                {filteredIntents.length > 0 ? filteredIntents.length * 12 + 34 : "0"}
+                            </span>
+                            <span className="text-sm font-medium text-green-600 mb-1 flex items-center bg-green-50 px-1.5 py-0.5 rounded">
+                                +5% <TrendingUp size={12} className="ml-1" />
+                            </span>
+                        </div>
+                        <p className="text-xs text-gray-400">Total intents analyzed this month</p>
+                    </div>
+                </div>
+
+                {/* AI Assistant Trigger Card */}
+                <div className="col-span-2 bg-gradient-to-r from-[#212121] to-[#374151] rounded-2xl p-8 text-white shadow-lg flex items-center justify-between relative overflow-hidden group">
+                     <div className="absolute right-0 top-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
+                     <div className="relative z-10">
+                        <h3 className="font-['Merriweather'] text-2xl font-bold mb-2">New Scan Available</h3>
+                        <p className="text-gray-300 max-w-md mb-6 font-['Roboto']">
+                            Start a new comprehensive AI scan across all social platforms to find your next customer.
+                        </p>
+                         <Dialog open={isDialogOpen} onOpenChange={(open) => {
+                            if (open && dailyScans >= MAX_FREE_SCANS) {
+                            alert("今日免费扫描次数已用完，明天再来或升级 Pro 版解锁无限扫描！");
+                            return;
+                            }
+                            setIsDialogOpen(open);
+                        }}>
+                            <DialogTrigger asChild>
+                                <button 
+                                    disabled={dailyScans >= MAX_FREE_SCANS}
+                                    className="bg-white text-[#212121] px-6 py-2.5 rounded-lg font-bold flex items-center gap-2 hover:bg-gray-100 transition-colors active:scale-95"
+                                >
+                                    <Sparkles size={18} />
+                                    {dailyScans >= MAX_FREE_SCANS ? "Limit Reached" : "Start Radar Scan"}
+                                </button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-[1000px] p-0 overflow-hidden bg-transparent border-none shadow-none focus:outline-none">
+                            <VisuallyHidden>
+                                <DialogTitle>AI Search Assistant</DialogTitle>
+                                <DialogDescription>
+                                Configure your search parameters using AI to find potential leads.
+                                </DialogDescription>
+                            </VisuallyHidden>
+                            <AIQuestionnaire isModal onComplete={handleScanComplete} />
+                            </DialogContent>
+                        </Dialog>
+                     </div>
+                     <div className="hidden lg:block relative z-10">
+                        <div className="w-24 h-24 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/20">
+                            <Sparkles size={40} className="text-white" />
+                        </div>
+                     </div>
+                </div>
+            </div>
+
+            {/* Main Content Area */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Recent Intents List (Left 2/3) */}
+                <div className="lg:col-span-2 bg-white rounded-2xl border border-[#e5e5e5] shadow-sm flex flex-col overflow-hidden min-h-[600px]">
+                    <div className="px-6 py-5 border-b border-[#e5e5e5] flex justify-between items-center bg-gray-50/50">
+                        <h3 className="font-['Roboto'] text-[18px] font-semibold text-[#1f2937]">Recent Intents</h3>
+                        <div className="flex gap-2 bg-white p-1 rounded-lg border border-gray-200">
+                             <button
+                                onClick={() => setView("list")}
+                                className={`p-1.5 rounded-md transition-all ${
+                                view === "list" ? "bg-gray-100 text-gray-900" : "text-gray-400 hover:text-gray-600"
+                                }`}
+                            >
+                                <List size={16} />
+                            </button>
+                            <button
+                                onClick={() => setView("grid")}
+                                className={`p-1.5 rounded-md transition-all ${
+                                view === "grid" ? "bg-gray-100 text-gray-900" : "text-gray-400 hover:text-gray-600"
+                                }`}
+                            >
+                                <Grid2x2 size={16} />
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="p-6 overflow-y-auto max-h-[600px] bg-white">
+                        {filteredIntents.length === 0 ? (
+                            <div className="flex flex-col items-center justify-center py-20 text-center">
+                                <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+                                    <Search className="text-gray-400" size={24} />
+                                </div>
+                                <h3 className="text-lg font-bold text-gray-900 mb-2">No intents found</h3>
+                                <p className="text-gray-500 max-w-xs">Try starting a new scan to find potential customers.</p>
+                            </div>
+                        ) : (
+                             <div className={`grid gap-4 ${view === "grid" ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1"}`}>
+                                {filteredIntents.slice(0, MAX_FREE_VIEW).map((intent) => (
+                                    <IntentCard key={intent.id} intent={intent} />
+                                ))}
+                             </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Intent Summary (Right 1/3) */}
+                <div className="bg-white rounded-2xl border border-[#e5e5e5] shadow-sm flex flex-col overflow-hidden h-fit">
+                    <div className="px-6 py-5 border-b border-[#e5e5e5] flex justify-between items-center bg-gray-50/50">
+                        <h3 className="font-['Roboto'] text-[18px] font-semibold text-[#1f2937]">Intent Summary</h3>
+                        <MoreHorizontal size={18} className="text-gray-400" />
+                    </div>
+                    <div className="p-6">
+                        <div className="relative pl-6 border-l-2 border-gray-100 space-y-8">
+                             {/* Timeline Items */}
+                            {[
+                                { label: "High Intent", count: 12, color: "bg-green-500" },
+                                { label: "Medium Intent", count: 45, color: "bg-yellow-500" },
+                                { label: "Low Intent", count: 28, color: "bg-gray-400" },
+                                { label: "Archived", count: 105, color: "bg-gray-300" }
+                            ].map((item, idx) => (
+                                <div key={idx} className="relative">
+                                    <span className={`absolute -left-[31px] top-1 w-4 h-4 rounded-full border-2 border-white ${item.color} shadow-sm`}></span>
+                                    <div className="flex justify-between items-center mb-1">
+                                        <span className="font-['Outfit'] font-medium text-[#1f2937]">{item.label}</span>
+                                        <span className="text-sm font-bold text-gray-900">{item.count}</span>
+                                    </div>
+                                    <div className="w-full bg-gray-100 rounded-full h-1.5 mt-2">
+                                        <div className={`h-1.5 rounded-full ${item.color}`} style={{ width: `${Math.random() * 60 + 20}%` }}></div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                        
+                        <div className="mt-8 pt-6 border-t border-gray-100">
+                             <h4 className="font-['Outfit'] text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Top Platforms</h4>
+                             <div className="flex gap-4">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                                    <span className="text-sm font-medium text-gray-600">LinkedIn</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                                    <span className="text-sm font-medium text-gray-600">Xiaohongshu</span>
+                                </div>
+                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
       </main>
     </div>

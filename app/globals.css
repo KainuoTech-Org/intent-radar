@@ -40,45 +40,43 @@
 }
 
 .dark {
-  /* Fine-tuned color values to perfectly match reference design */
-  --background: #f5f6fa;
-  --foreground: #1a1d29;
+  /* IntentRadar New Design System (Claude-like Warm Theme) */
+  --background: #fbfbfb;  /* 浅咖白 */
+  --foreground: #212121;  /* 深灰黑 */
   --card: #ffffff;
-  --card-foreground: #1a1d29;
+  --card-foreground: #212121;
   --popover: #ffffff;
-  --popover-foreground: #1a1d29;
-  --primary: #8b5cf6;
+  --popover-foreground: #212121;
+  --primary: #212121;     /* 主要按钮使用深色 */
   --primary-foreground: #ffffff;
-  --secondary: #f1f3f9;
-  --secondary-foreground: #1a1d29;
-  --muted: #e5e7eb;
+  --secondary: #f3f4f6;   /* 浅灰色辅助背景 */
+  --secondary-foreground: #1f2937;
+  --muted: #f3f4f6;
   --muted-foreground: #6b7280;
-  --accent: #8b5cf6;
-  --accent-foreground: #ffffff;
+  --accent: #f3f4f6;
+  --accent-foreground: #111827;
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: #e5e7eb;
-  --input: #f9fafb;
-  --ring: #8b5cf6;
-  --chart-1: #8b5cf6;
-  --chart-2: #06b6d4;
-  --chart-3: #10b981;
-  --chart-4: #f59e0b;
-  --chart-5: #ef4444;
-  --sidebar: #1e1b2e;
-  --sidebar-foreground: #e5e7eb;
-  --sidebar-primary: #7c3aed;
+  --border: #e5e5e5;      /* 极淡边框 */
+  --input: #f3f4f6;
+  --ring: #212121;
+  --radius: 0.75rem;      /* rounded-xl */
+  
+  /* Sidebar Specifics */
+  --sidebar: #fbfbfb;     /* 与背景同色 */
+  --sidebar-foreground: #646464;
+  --sidebar-primary: #212121;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #2a2640;
-  --sidebar-accent-foreground: #e5e7eb;
-  --sidebar-border: #2a2640;
-  --sidebar-ring: #8b5cf6;
+  --sidebar-accent: #57575729; /* 选中态背景 */
+  --sidebar-accent-foreground: #212121;
+  --sidebar-border: transparent;
+  --sidebar-ring: #212121;
 }
 
 @theme inline {
-  /* Changed to Inter font to match reference design */
-  --font-sans: "Inter", "Inter Fallback", system-ui, sans-serif;
-  --font-mono: "Geist Mono", "Geist Mono Fallback";
+  --font-serif: "Merriweather", serif;
+  --font-sans: "Roboto", "Outfit", system-ui, sans-serif;
+  --font-heading: "Outfit", sans-serif;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);

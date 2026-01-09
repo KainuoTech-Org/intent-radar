@@ -4,10 +4,13 @@ import type { Metadata } from "next"
 import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 
-import { Inter, Geist_Mono } from "next/font/google"
-
-const inter = Inter({ subsets: ["latin"] })
-const geistMono = Geist_Mono({ subsets: ["latin"] })
+// Import new fonts
+import "@fontsource/merriweather/400.css";
+import "@fontsource/merriweather/700.css";
+import "@fontsource/roboto/400.css";
+import "@fontsource/roboto/500.css";
+import "@fontsource/outfit/400.css";
+import "@fontsource/outfit/500.css";
 
 export const metadata: Metadata = {
   title: "IntentRadar - Unified Intent Inbox",
@@ -38,8 +41,8 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className="dark">
-      <body className={`${inter.className} antialiased dark`}>
+    <html lang="en">
+      <body className="antialiased bg-[#fbfbfb] text-[#212121]">
         {children}
         <Analytics />
       </body>

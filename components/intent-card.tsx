@@ -120,10 +120,10 @@ export function IntentCard({ intent, showStatus = false, onUpdateStatus, onUpdat
 
   return (
     <div className="relative group">
-      <div className="rounded-2xl p-6 relative h-full flex flex-col bg-white border border-gray-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+      <div className="rounded-2xl p-6 relative h-full flex flex-col bg-white border border-[#e5e5e5] shadow-sm hover:shadow-lg hover:border-[#212121] transition-all duration-300">
         <div className="flex justify-between items-start mb-5">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full border-2 border-gray-100 overflow-hidden bg-gray-50 shadow-sm">
+            <div className="w-12 h-12 rounded-full border border-gray-100 overflow-hidden bg-gray-50">
               <img
                 src={intent.avatar || `https://unavatar.io/${intent.platform || 'github'}/${encodeURIComponent(intent.author)}`}
                 alt={intent.author}
@@ -134,76 +134,78 @@ export function IntentCard({ intent, showStatus = false, onUpdateStatus, onUpdat
               />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-bold text-gray-900 text-[15px] truncate">{intent.author || "Unknown User"}</p>
-              <p className="text-[10px] text-gray-400 font-medium uppercase tracking-wider">{intent.timeAgo}</p>
+              <p className="font-semibold text-[#1f2937] text-[16px] truncate font-['Outfit']">{intent.author || "Unknown User"}</p>
+              <p className="text-[12px] text-gray-500 font-medium font-['Roboto']">{intent.timeAgo}</p>
             </div>
           </div>
           <div
-            className={`${platformConfig.bg} ${platformConfig.textColor} w-9 h-9 rounded-xl flex items-center justify-center shadow-lg transform group-hover:rotate-12 transition-all duration-300 border-2 border-white`}
+            className={`${platformConfig.bg} ${platformConfig.textColor} w-8 h-8 rounded-lg flex items-center justify-center shadow-sm`}
           >
-            <PlatformIcon size={18} />
+            <PlatformIcon size={16} />
           </div>
         </div>
 
+        {/* ... (Status Dropdown) ... */}
         {showStatus && (
           <div className="mb-4">
             <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center gap-2 px-2.5 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs font-bold shadow-sm hover:bg-white transition-colors capitalize focus:outline-none">
+              <DropdownMenuTrigger className="flex items-center gap-2 px-3 py-1.5 bg-[#f3f4f6] rounded-lg text-xs font-semibold text-[#212121] hover:bg-gray-200 transition-colors capitalize focus:outline-none font-['Outfit']">
                 <div className={`w-2 h-2 rounded-full ${
-                  intent.status === 'new' ? 'bg-blue-500 animate-pulse' : 
+                  intent.status === 'new' ? 'bg-blue-600' : 
                   intent.status === 'contacting' ? 'bg-orange-500' :
-                  intent.status === 'closed' ? 'bg-green-500' : 'bg-gray-400'
+                  intent.status === 'closed' ? 'bg-green-600' : 'bg-gray-400'
                 }`} />
                 {intent.status}
-                <MoreVertical size={14} className="text-gray-400 ml-auto" />
+                <MoreVertical size={14} className="text-gray-500 ml-auto" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="w-40">
-                <DropdownMenuItem onClick={() => onUpdateStatus?.('new')} className="font-medium">New</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onUpdateStatus?.('contacting')} className="font-medium text-orange-600">Contacting</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onUpdateStatus?.('closed')} className="font-medium text-green-600">Closed</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onUpdateStatus?.('abandoned')} className="font-medium text-gray-500">Abandoned</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onUpdateStatus?.('new')} className="font-medium font-['Outfit']">New</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onUpdateStatus?.('contacting')} className="font-medium text-orange-600 font-['Outfit']">Contacting</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onUpdateStatus?.('closed')} className="font-medium text-green-600 font-['Outfit']">Closed</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onUpdateStatus?.('abandoned')} className="font-medium text-gray-500 font-['Outfit']">Abandoned</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
         )}
 
-        <div className="mb-5 flex-1">
+        <div className="mb-6 flex-1">
           <button
             onClick={handleViewPost}
-            className="text-left w-full hover:bg-purple-50/30 -mx-2 px-2 py-2 rounded-xl transition-all group/text"
+            className="text-left w-full group/text"
           >
-            <p className="text-[14px] text-gray-700 leading-relaxed line-clamp-4 font-medium group-hover/text:text-gray-900">
+            <p className="text-[15px] text-[#4b5563] leading-relaxed line-clamp-3 font-normal font-['Roboto'] group-hover/text:text-[#1f2937] transition-colors">
               {intent.content}
             </p>
           </button>
 
           {intent.topComment && (
-            <div className="mt-4 p-3 bg-purple-50/40 rounded-xl border border-purple-100/50 relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-1 h-full bg-purple-400/50" />
+            <div className="mt-4 p-3 bg-gray-50 rounded-xl border border-gray-100 relative">
               <div className="flex items-center gap-2 mb-1">
-                <MessageSquare size={12} className="text-purple-500" />
-                <span className="text-[9px] font-black text-purple-400 uppercase tracking-widest">Key Insight</span>
+                <MessageSquare size={12} className="text-[#212121]" />
+                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest font-['Outfit']">Key Insight</span>
               </div>
-              <p className="text-[11px] text-gray-600 italic line-clamp-2 leading-snug">
-                "{intent.topComment.content}" — <span className="font-bold text-gray-700">{intent.topComment.author}</span>
+              <p className="text-[13px] text-gray-600 italic line-clamp-2 leading-relaxed font-['Merriweather']">
+                "{intent.topComment.content}"
               </p>
             </div>
           )}
         </div>
 
+        {/* ... (Notes) ... */}
         {showStatus && intent.notes && intent.notes.length > 0 && (
-          <div className="mb-4">
+            // ... notes content ...
+             <div className="mb-4">
              <button 
               onClick={() => setShowNotes(!showNotes)}
-              className="text-[10px] font-bold text-gray-400 hover:text-purple-600 transition-colors uppercase tracking-wider mb-2 flex items-center gap-1"
+              className="text-[11px] font-semibold text-gray-500 hover:text-[#212121] transition-colors uppercase tracking-wider mb-2 flex items-center gap-1 font-['Outfit']"
              >
                Notes ({intent.notes.length})
-               <span className={`text-[8px] transition-transform ${showNotes ? 'rotate-180' : ''}`}>▼</span>
+               <span className={`text-[10px] transition-transform ${showNotes ? 'rotate-180' : ''}`}>▼</span>
              </button>
              {showNotes && (
                <div className="space-y-2 max-h-32 overflow-y-auto pr-1 custom-scrollbar">
                  {intent.notes.map((note, idx) => (
-                   <div key={idx} className="p-2 bg-gray-50 border border-gray-100 rounded-lg text-[11px] text-gray-700 font-medium">
+                   <div key={idx} className="p-2 bg-[#f9fafb] border border-gray-100 rounded-lg text-[12px] text-gray-700 font-normal font-['Roboto']">
                      {note}
                    </div>
                  ))}
@@ -212,57 +214,59 @@ export function IntentCard({ intent, showStatus = false, onUpdateStatus, onUpdat
           </div>
         )}
 
-        {showStatus && (
+        {/* ... (Add Note Form) ... */}
+         {showStatus && (
           <form onSubmit={handleAddNote} className="mb-5 flex gap-2">
             <input 
               type="text" 
-              placeholder="Add follow-up note..." 
+              placeholder="Add note..." 
               value={noteInput}
               onChange={(e) => setNoteInput(e.target.value)}
-              className="flex-1 bg-gray-50 text-[11px] border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500/50 transition-all"
+              className="flex-1 bg-[#f9fafb] text-[13px] border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#212121] transition-all font-['Roboto']"
             />
-            <button type="submit" className="p-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all shadow-md active:scale-95">
-              <Plus size={14} />
+            <button type="submit" className="p-2 bg-[#212121] text-white rounded-lg hover:bg-black transition-all shadow-sm active:scale-95">
+              <Plus size={16} />
             </button>
           </form>
         )}
 
-        <div className="mt-auto space-y-2.5">
+
+        <div className="mt-auto space-y-3">
           <div className="flex justify-between items-center">
-            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Match Score</span>
-            <span className="text-sm font-black text-purple-600">
+            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-widest font-['Outfit']">Match Score</span>
+            <span className="text-sm font-bold text-[#212121] font-['Outfit']">
               {intent.intentScore}%
             </span>
           </div>
-          <div className="h-1.5 rounded-full overflow-hidden bg-gray-100">
+          <div className="h-2 rounded-full overflow-hidden bg-gray-100">
             <div
-              className="h-full rounded-full transition-all duration-1000 ease-out shadow-[0_0_8px_rgba(139,92,246,0.5)]"
+              className="h-full rounded-full transition-all duration-1000 ease-out"
               style={{
-                background: "linear-gradient(to right, #8b5cf6, #d946ef)",
+                background: "#212121",
                 width: `${intent.intentScore}%`,
               }}
             />
           </div>
         </div>
 
-        <div className="flex gap-2.5 mt-5 pt-5 border-t border-gray-100">
+        <div className="flex gap-3 mt-6 pt-5 border-t border-[#f3f4f6]">
           <button
             onClick={handleViewPost}
-            className="flex-1 flex items-center justify-center gap-2 bg-gray-900 text-white hover:bg-black rounded-xl py-2.5 transition-all text-xs font-bold shadow-lg active:scale-95"
+            className="flex-1 flex items-center justify-center gap-2 bg-[#212121] text-white hover:bg-black rounded-lg py-2.5 transition-all text-[13px] font-medium font-['Outfit'] shadow-sm active:scale-95"
           >
-            <ExternalLink size={14} />
+            <ExternalLink size={16} />
             View Post
           </button>
           {!showStatus && (
             <button
               onClick={handleSave}
-              className={`flex-1 flex items-center justify-center gap-2 rounded-xl py-2.5 transition-all text-xs font-bold border-2 ${
+              className={`flex-1 flex items-center justify-center gap-2 rounded-lg py-2.5 transition-all text-[13px] font-medium font-['Outfit'] border ${
                 isSaved
-                  ? "bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100"
-                  : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
+                  ? "bg-[#f3f4f6] text-[#212121] border-gray-200"
+                  : "bg-white text-gray-600 border-gray-200 hover:bg-[#f9fafb]"
               } active:scale-95`}
             >
-              {isSaved ? <BookmarkCheck size={14} /> : <Bookmark size={14} />}
+              {isSaved ? <BookmarkCheck size={16} /> : <Bookmark size={16} />}
               {isSaved ? "Saved" : "Save"}
             </button>
           )}

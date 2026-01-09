@@ -91,7 +91,7 @@ interface Intent {
   content: string       // 帖子正文
   topComment?: {        // [新增] 意向评论（探索性功能）
     author: string
-    content: string
+  content: string
   }
   postedAt: Date
   aiScore: number       // 0-100
