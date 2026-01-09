@@ -39,9 +39,10 @@ export async function POST(req: Request) {
 任务要求：
 1. 严格分析原始碎片数据。
 2. 只保留明确表达了“需求”、“求助”、“寻找解决方案”、“求推荐”的帖子。
-3. 必须包含字段: platform, author_name, content, intent_score (80-100), source_url, top_comment (包含 author 和 content)。
-4. 如果原始碎片数据为空，或没有符合条件的意向，请基于你的行业知识，**模拟生成 6-8 条**极其真实、高质量的潜在客户意向。这些模拟数据必须看起来像是来自真实社交平台的真实发帖。
-5. 必须返回一个纯 JSON 数组，不要有任何其他解释。`
+3. **自动翻译逻辑**：无论原始帖子是什么语言（英文、日文等），请统一将 content 和 top_comment 的内容翻译成【中文】，以便于用户快速阅读。
+4. 必须包含字段: platform, author_name, content, intent_score (80-100), source_url, top_comment (包含 author 和 content)。
+5. 如果原始碎片数据为空，或没有符合条件的意向，请基于你的行业知识，**模拟生成 6-8 条**极其真实、高质量的潜在客户意向。这些模拟数据必须看起来像是来自真实社交平台的真实发帖。
+6. 必须返回一个纯 JSON 数组，不要有任何其他解释。`
 
     let intents = []
     try {
@@ -62,10 +63,10 @@ export async function POST(req: Request) {
         {
           platform: "linkedin",
           author_name: "Sarah Chen",
-          content: `We are looking for a reliable ${business} partner to help us scale our startup. Any recommendations?`,
+          content: `我们正在寻找可靠的 ${business} 合作伙伴来帮助我们扩大初创公司的规模。有什么好的推荐吗？`,
           intent_score: 94,
           source_url: "https://www.linkedin.com/feed/",
-          top_comment: { author: "Michael Wu", content: "I've heard great things about specialized agencies in this field." }
+          top_comment: { author: "Michael Wu", content: "我听说这个领域有一些非常专业的机构，可以尝试联系一下。" }
         },
         {
           platform: "xiaohongshu",
@@ -78,10 +79,10 @@ export async function POST(req: Request) {
         {
           platform: "x",
           author_name: "TechFounder",
-          content: `Seeking a ${business} expert for a short-term project. Must have experience with React/Next.js. DM me!`,
+          content: `正在为短期项目寻找 ${business} 专家。必须有 React/Next.js 的经验。请私信我！`,
           intent_score: 88,
           source_url: "https://x.com/home",
-          top_comment: { author: "DevGuru", content: "Sent you a DM with my portfolio." }
+          top_comment: { author: "DevGuru", content: "已经发送私信，并附上了我的作品集。" }
         }
       ]
     }
