@@ -28,18 +28,18 @@ export async function POST(req: Request) {
       
       try {
         let res = await fetch(
-          `https://serpapi.com/search.json?engine=google&q=${encodeURIComponent(q)}&api_key=${serpApiKey}&num=15`,
+          `https://serpapi.com/search.json?engine=google&q=${encodeURIComponent(q)}&api_key=${serpApiKey}&num=30`,
           { signal: AbortSignal.timeout(10000) }
         )
         let data = await res.json()
         let results = data.organic_results || []
         
-        // 策略 2: 如果结果少于 5 条，放宽到整个域名
-        if (results.length < 5) {
+        // 策略 2: 如果结果少于 10 条，放宽到整个域名
+        if (results.length < 10) {
           console.log(`[Scan] Platform ${platform}: 精确搜索仅 ${results.length} 条，尝试宽泛搜索`)
           const broadQuery = `site:${platform}.com "${business}" ${keywords?.join(' ') || ''}`
           res = await fetch(
-            `https://serpapi.com/search.json?engine=google&q=${encodeURIComponent(broadQuery)}&api_key=${serpApiKey}&num=15`,
+            `https://serpapi.com/search.json?engine=google&q=${encodeURIComponent(broadQuery)}&api_key=${serpApiKey}&num=30`,
             { signal: AbortSignal.timeout(10000) }
           )
           data = await res.json()
@@ -63,34 +63,52 @@ export async function POST(req: Request) {
     
     console.log(`[Scan] 共获取 ${rawData.length} 条原始搜索结果`)
 
-    // 2. 🧠 改进的意图分析引擎 - 更包容的识别策略
-    const systemPrompt = `你是一个专业的客户意向识别专家。你的任务是从社交媒体搜索结果中识别潜在的客户意向。
+    // 2. 🧠 改进的意图分析引擎 - 精准匹配用户需求
+    const systemPrompt = `你是一个专业的客户意向识别专家。你的任务是从社交媒体搜索结果中识别与用户业务高度相关的潜在客户意向。
 
-意向分类标准：
+**用户业务**: ${business}
+**关键需求**: ${keywords?.join('、') || '无'}
 
-1. **直接意向** (80-100分)：
-   - 明确表达需求：如"寻找"、"需要"、"招聘"、"求推荐"、"找人"
-   - 示例："需要一个前端开发帮忙做项目"
+意向评估标准：
 
-2. **间接意向** (60-79分)：
-   - 隐含需求：如"有人知道"、"求助"、"哪里可以找到"、"推荐一下"
+1. **高度相关 (80-100分)**：
+   - 内容明确表达对该业务的需求
+   - 包含明确的行动意图："寻找"、"需要"、"招聘"、"求推荐"
+   - 与用户业务类型和关键词高度匹配
+   - 示例："需要一个前端开发帮忙做 React 项目"
+
+2. **中度相关 (60-79分)**：
+   - 内容暗示对该业务的潜在需求
+   - 包含隐含意图："有人知道"、"求助"、"推荐一下"
+   - 与用户业务相关但不完全匹配
    - 示例："有人知道香港哪里可以找到靠谱的设计师吗？"
 
-3. **问题型意向** (50-69分)：
-   - 相关问题：如"怎么做"、"如何选择"、"什么工具好"
+3. **低度相关 (50-69分)**：
+   - 内容提出与业务相关的问题
+   - 可能有潜在需求但不明确
    - 示例："做电商网站应该用什么技术栈？"
 
-4. **讨论型内容** (30-49分)：
-   - 相关讨论但意向不明确
-   - 示例："最近在研究 React，感觉还不错"
+4. **相关性不足 (< 50分)**：
+   - 仅包含关键词但没有明确需求
+   - 与用户业务关联度低
+   - **这类内容应该被过滤，不要返回**
+
+评分要点：
+- 内容是否直接提到用户的业务类型？(+20分)
+- 是否包含明确的需求表达？(+20分)
+- 是否包含用户提供的关键词？(+15分)
+- 语境是否表明有购买/合作意向？(+15分)
+- 是否有具体的项目描述或预算？(+10分)
 
 输出要求：
 - 返回 JSON 数组
-- 每个意向包含：platform, author_name, content, intent_score, source_url, top_comment (可选)
-- source_url 必须直接从原始数据的 'link' 字段提取，严禁编造
+- 每个意向包含：platform, author_name, content, intent_score, relevance_reason, source_url
+- relevance_reason: 简短说明为什么这条内容相关（1-2句话）
+- source_url 必须直接从原始数据的 'link' 字段提取
 - 如果 link 包含 /search 或 /search_result，跳过该结果
-- 即使意向不明确，只要与业务相关且评分 >= 50，也应该包含
+- **只返回评分 >= 50 的结果**
 - 将内容翻译为中文
+- 优先返回评分最高的结果
 
 请返回纯 JSON 数组。`
 
@@ -100,7 +118,7 @@ export async function POST(req: Request) {
         const { text } = await generateText({
           model: deepseek("deepseek-chat"),
           system: systemPrompt,
-          prompt: `业务类型: "${business}"。原始搜索碎片数据: ${JSON.stringify(rawData.slice(0, 15))}。请返回纯 JSON 数组。`,
+          prompt: `业务类型: "${business}"。关键词: ${keywords?.join('、') || '无'}。原始搜索结果: ${JSON.stringify(rawData.slice(0, 25))}。请仔细评估每条结果与用户业务的相关性，只返回高质量的意向线索（评分 >= 50）。返回纯 JSON 数组。`,
         })
         const jsonStr = text.replace(/```json|```/g, "").trim()
         intents = JSON.parse(jsonStr)
@@ -108,25 +126,31 @@ export async function POST(req: Request) {
       } catch (aiError: any) {
         console.error("[Scan] AI 分析失败:", aiError.message)
         // 降级：返回原始搜索结果
-        intents = rawData.slice(0, 5).map((item: any) => ({
+        intents = rawData.slice(0, 8).map((item: any) => ({
           platform: item.platform,
           author_name: "未知用户",
           content: item.snippet || item.title,
           intent_score: 50,
+          relevance_reason: "AI 分析失败，这是原始搜索结果",
           source_url: item.link
         }))
       }
     }
 
-    // 3. 数据映射与精选
+    // 3. 数据映射与精选 - 按评分排序
     const processed = (intents || [])
       .filter((item: any) => {
         // 过滤无效 URL
         if (!item.source_url || item.source_url.includes('/search')) {
           return false
         }
+        // 只保留评分 >= 50 的结果
+        if (item.intent_score < 50) {
+          return false
+        }
         return true
       })
+      .sort((a: any, b: any) => b.intent_score - a.intent_score) // 按评分降序排序
       .map((item: any, idx: number) => ({
         id: `intent-${Date.now()}-${idx}`,
         platform: item.platform?.toLowerCase() || "xiaohongshu",
@@ -136,7 +160,10 @@ export async function POST(req: Request) {
         content: item.content,
         intentScore: item.intent_score || 85,
         sourceUrl: item.source_url,
-        topComment: item.top_comment || { author: "AI Insight", content: "根据语义分析，该用户在社交媒体上表达了明确的业务合作意向。" }
+        topComment: item.top_comment || { 
+          author: "AI 相关性分析", 
+          content: item.relevance_reason || "根据语义分析，该用户在社交媒体上表达了明确的业务合作意向。" 
+        }
       }))
 
     console.log(`[Scan] 最终返回 ${processed.length} 条有效意向`)
