@@ -15,23 +15,14 @@ import "@fontsource/inter/700.css";
 export const metadata: Metadata = {
   title: "IntentRadar - Unified Intent Inbox",
   description: "AI-powered intent monitoring across social platforms",
-  generator: "v0.app",
   icons: {
     icon: [
-      {
-        url: "/icon-light-32x32.png",
-        media: "(prefers-color-scheme: light)",
-      },
-      {
-        url: "/icon-dark-32x32.png",
-        media: "(prefers-color-scheme: dark)",
-      },
       {
         url: "/icon.svg",
         type: "image/svg+xml",
       },
     ],
-    apple: "/apple-icon.png",
+    apple: "/icon.svg",
   },
 }
 

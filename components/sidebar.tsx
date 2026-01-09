@@ -22,10 +22,15 @@ export function Sidebar() {
       <div className="h-[101px] border-b border-[#E5E1D8] flex items-center px-6">
         <div className="flex items-center gap-3">
             <div className="w-8 h-8 flex items-center justify-center">
-                {/* Replaced with simple placeholder icon from design */}
-                <div className="w-8 h-8 bg-[#323333] rounded-lg flex items-center justify-center">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                {/* Updated to match the new Radar icon */}
+                <div className="w-8 h-8 bg-[#323333] rounded-lg flex items-center justify-center overflow-hidden">
+                    <svg width="24" height="24" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg" className="scale-[0.5]">
+                        <circle cx="90" cy="90" r="60" stroke="white" strokeWidth="4" opacity="0.2"/>
+                        <circle cx="90" cy="90" r="40" stroke="white" strokeWidth="4" opacity="0.4"/>
+                        <circle cx="90" cy="90" r="20" stroke="white" strokeWidth="4" opacity="0.6"/>
+                        <path d="M90 30L90 150M30 90L150 90" stroke="white" strokeWidth="4" opacity="0.2"/>
+                        <path d="M90 90L135 45" stroke="white" strokeWidth="12" strokeLinecap="round"/>
+                        <circle cx="120" cy="60" r="16" fill="#D4E7D4"/>
                     </svg>
                 </div>
             </div>
