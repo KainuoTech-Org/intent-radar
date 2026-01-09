@@ -158,8 +158,8 @@ export function AIQuestionnaire({
         }))
 
         if (onComplete) {
-          // Pass results and the query info back to parent
-          (onComplete as any)(formattedResults, { business, keywords })
+          // Pass results, the query info, and the message back to parent
+          (onComplete as any)(formattedResults, { business, keywords }, data.message)
         } else {
           localStorage.setItem("scannedIntents", JSON.stringify(formattedResults))
           localStorage.setItem("lastScanQuery", JSON.stringify({ business, keywords }))

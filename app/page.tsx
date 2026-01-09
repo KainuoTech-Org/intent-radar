@@ -73,6 +73,7 @@ const PlatformIcon = ({ platform }: { platform: string }) => {
 export default function Page() {
   const [intents, setIntents] = useState<Intent[]>([])
   const [lastQuery, setLastQuery] = useState<{ business: string; keywords: string[] } | null>(null)
+  const [statusMessage, setStatusMessage] = useState<string>("")
 
   useEffect(() => {
     const saved = localStorage.getItem("scannedIntents")
@@ -96,11 +97,15 @@ export default function Page() {
     }
   }, [])
 
-  const handleScanComplete = (results: Intent[], query?: { business: string; keywords: string[] }) => {
-    if (results && results.length > 0) {
+  const handleScanComplete = (results: Intent[], query?: { business: string; keywords: string[] }, message?: string) => {
+    if (results) {
       setIntents(results)
       localStorage.setItem("scannedIntents", JSON.stringify(results))
       
+      if (message) {
+        setStatusMessage(message)
+      }
+
       if (query) {
         setLastQuery(query)
         localStorage.setItem("lastScanQuery", JSON.stringify(query))
@@ -117,6 +122,14 @@ export default function Page() {
       onScanComplete={handleScanComplete}
     >
       <div className="max-w-[800px] mx-auto py-8 px-6">
+        {/* Status Message */}
+        {statusMessage && (
+          <div className="mb-6 p-4 bg-[#EDE9E0] text-[#323333] rounded-[10px] border border-[#E5E1D8] font-['Inter'] text-[14px] flex items-center gap-3">
+            <Sparkles size={18} className="text-[#8B6F47]" />
+            {statusMessage}
+          </div>
+        )}
+
         {/* Last Scan Info */}
         {lastQuery && (
           <div className="mb-8 p-4 bg-[#F5F3F0] rounded-[12px] border border-[#E5E1D8]">

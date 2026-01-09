@@ -20,7 +20,7 @@ interface PageLayoutProps {
   subtitle?: string
   showSearch?: boolean
   showNewScan?: boolean
-  onScanComplete?: (results: any[], query?: any) => void
+  onScanComplete?: (results: any[], query?: any, message?: string) => void
 }
 
 export function PageLayout({
