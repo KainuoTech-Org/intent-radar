@@ -9,7 +9,22 @@ import { Textarea } from "@/components/ui/textarea"
 import { ArrowRight, Sparkles, Send, Loader2, Check } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { DEMO_INTENTS } from "@/lib/mock-data"
-import type { Intent } from "./inbox"
+
+export interface Intent {
+  id: string
+  platform: "xiaohongshu" | "linkedin" | "x" | "telegram" | "reddit" | "facebook" | "instagram"
+  avatar: string
+  author: string
+  timeAgo: string
+  content: string
+  intentScore: number
+  sourceUrl: string
+  timestamp?: Date
+  topComment?: {
+    author: string
+    content: string
+  }
+}
 
 interface Message {
   role: "assistant" | "user"
@@ -162,19 +177,19 @@ export function AIQuestionnaire({
 
   if (mode === "scanning") {
     return (
-      <div className={`min-h-[500px] w-full flex items-center justify-center p-8 bg-white ${isModal ? 'rounded-2xl' : 'min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50'}`}>
+      <div className={`min-h-[500px] w-full flex items-center justify-center p-8 bg-[#FBF9F6] ${isModal ? 'rounded-[20px]' : 'min-h-screen'}`}>
         <div className="text-center">
-          <div className="relative mb-8">
-            <div className="w-24 h-24 rounded-full border-4 border-purple-100 border-t-purple-600 animate-spin mx-auto" />
-            <Sparkles className="w-8 h-8 text-purple-600 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+          <div className="relative mb-8 flex justify-center">
+            <div className="w-24 h-24 rounded-full border-4 border-[#E5E1D8] border-t-[#323333] animate-spin" />
+            <Sparkles className="w-8 h-8 text-[#323333] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">正在全网扫描意向...</h2>
-          <p className="text-gray-500">AI 正在小红书、LinkedIn、X 等平台搜索匹配线索</p>
+          <h2 className="font-['Merriweather'] text-[24px] font-bold text-[#323333] mb-2">正在全网扫描意向...</h2>
+          <p className="font-['Inter'] text-[#6B6660]">AI 正在小红书、LinkedIn、X 等平台搜索匹配线索</p>
           <div className="mt-8 flex flex-col gap-2 max-w-xs mx-auto">
-            <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
-              <div className="h-full bg-purple-600 animate-[progress_3s_ease-in-out]" style={{ width: '100%' }} />
+            <div className="h-1.5 w-full bg-[#E5E1D8] rounded-full overflow-hidden">
+              <div className="h-full bg-[#323333] animate-[progress_3s_ease-in-out]" style={{ width: '100%' }} />
             </div>
-            <div className="flex justify-between text-[10px] font-bold text-gray-400 uppercase">
+            <div className="flex justify-between text-[10px] font-bold text-[#9B9690] uppercase tracking-wider">
               <span>Initializing</span>
               <span>Finalizing</span>
             </div>
@@ -186,63 +201,56 @@ export function AIQuestionnaire({
 
   if (mode === "choice") {
     return (
-      <div className={`w-full flex items-center justify-center p-4 ${isModal ? '' : 'min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50'}`}>
-        <div className={`${isModal ? 'w-full' : 'max-w-5xl w-full'} bg-white p-12 rounded-[32px] shadow-2xl border border-gray-100`}>
+      <div className={`w-full flex items-center justify-center p-4 ${isModal ? '' : 'min-h-screen bg-[#FBF9F6]'}`}>
+        <div className={`${isModal ? 'w-full' : 'max-w-5xl w-full'} bg-white p-12 rounded-[24px] shadow-sm border border-[#E5E1D8]`}>
           <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center">
+            <div className="inline-flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-[12px] bg-[#323333] flex items-center justify-center">
                 <Sparkles className="w-6 h-6 text-white" />
               </div>
-              <h1 className="text-3xl font-bold text-gray-900">AI 意向搜索助手</h1>
+              <h1 className="font-['Merriweather'] text-[32px] font-bold text-[#323333]">AI 意向搜索助手</h1>
             </div>
-            <p className="text-xl text-gray-600">告诉 AI 您的业务，我们会为您全网实时追踪潜在客户</p>
+            <p className="font-['Inter'] text-[18px] text-[#6B6660]">告诉 AI 您的业务，我们会为您全网实时追踪潜在客户</p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid md:grid-cols-2 gap-8">
             <button
               onClick={() => setMode("chat")}
-              className="group relative overflow-hidden bg-white rounded-2xl p-8 border-2 border-gray-200 hover:border-purple-500 transition-all hover:shadow-xl text-left"
+              className="group relative overflow-hidden bg-[#FEFCFA] rounded-[16px] p-8 border border-[#E5E1D8] hover:border-[#323333] transition-all hover:shadow-md text-left"
             >
-              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-100 to-transparent rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform" />
               <div className="relative">
-                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center mb-4">
-                  <Sparkles className="w-7 h-7 text-white" />
+                <div className="w-14 h-14 rounded-[12px] bg-[#F5F3F0] flex items-center justify-center mb-6 group-hover:bg-[#EDE9E0] transition-colors">
+                  <Sparkles className="w-7 h-7 text-[#323333]" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">对话式搜索</h3>
-                <p className="text-gray-600">只需几句话，AI 就能理解您的需求并开始实时抓取线索</p>
-                <div className="mt-6 flex items-center text-purple-600 font-medium">
-                  立即开始 <ArrowRight className="ml-2 w-5 h-5" />
+                <h3 className="font-['Merriweather'] text-[20px] font-bold text-[#323333] mb-2">对话式搜索</h3>
+                <p className="font-['Inter'] text-[#6B6660] leading-relaxed">只需几句话，AI 就能理解您的需求并开始实时抓取线索</p>
+                <div className="mt-8 flex items-center text-[#8B6F47] font-semibold text-[15px]">
+                  立即开始 <ArrowRight className="ml-2 w-5 h-5 transition-transform group-hover:translate-x-1" />
                 </div>
               </div>
             </button>
 
             <button
               onClick={() => setMode("form")}
-              className="group relative overflow-hidden bg-white rounded-2xl p-8 border-2 border-gray-200 hover:border-blue-500 transition-all hover:shadow-xl text-left"
+              className="group relative overflow-hidden bg-[#FEFCFA] rounded-[16px] p-8 border border-[#E5E1D8] hover:border-[#323333] transition-all hover:shadow-md text-left"
             >
-              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-100 to-transparent rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform" />
               <div className="relative">
-                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center mb-4">
-                  <svg className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                    />
+                <div className="w-14 h-14 rounded-[12px] bg-[#F5F3F0] flex items-center justify-center mb-6 group-hover:bg-[#EDE9E0] transition-colors">
+                  <svg className="w-7 h-7 text-[#323333]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                   </svg>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">问卷精准配置</h3>
-                <p className="text-gray-600">通过结构化问卷，精确定义您关注的平台、地区和关键词</p>
-                <div className="mt-6 flex items-center text-blue-600 font-medium">
-                  按步骤填写 <ArrowRight className="ml-2 w-5 h-5" />
+                <h3 className="font-['Merriweather'] text-[20px] font-bold text-[#323333] mb-2">问卷精准配置</h3>
+                <p className="font-['Inter'] text-[#6B6660] leading-relaxed">通过结构化问卷，精确定义您关注的平台、地区和关键词</p>
+                <div className="mt-8 flex items-center text-[#8B6F47] font-semibold text-[15px]">
+                  按步骤填写 <ArrowRight className="ml-2 w-5 h-5 transition-transform group-hover:translate-x-1" />
                 </div>
               </div>
             </button>
           </div>
 
-          <div className="mt-8 text-center">
-            <button onClick={() => isModal ? onComplete?.([]) : router.push("/")} className="text-gray-400 hover:text-gray-600 text-sm font-medium">
+          <div className="mt-12 text-center">
+            <button onClick={() => isModal ? onComplete?.([]) : router.push("/")} className="font-['Inter'] text-[#9B9690] hover:text-[#323333] text-[14px] font-medium transition-colors">
               暂时跳过，进入控制台
             </button>
           </div>
@@ -253,21 +261,21 @@ export function AIQuestionnaire({
 
   if (mode === "chat") {
     return (
-      <div className={`w-full flex items-center justify-center p-4 ${isModal ? '' : 'min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50'}`}>
-        <div className="max-w-3xl w-full bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100">
-          <div className="bg-gradient-to-r from-purple-600 to-blue-600 p-8 text-white">
-            <h2 className="text-2xl font-bold">AI 对话搜索</h2>
-            <p className="text-purple-100 mt-1 opacity-90">描述您的业务，我们将为您定位潜在客户</p>
+      <div className={`w-full flex items-center justify-center p-4 ${isModal ? '' : 'min-h-screen bg-[#FBF9F6]'}`}>
+        <div className="max-w-3xl w-full bg-white rounded-[24px] shadow-sm overflow-hidden border border-[#E5E1D8]">
+          <div className="bg-[#FEFCFA] border-b border-[#E5E1D8] p-8">
+            <h2 className="font-['Merriweather'] text-[24px] font-bold text-[#323333]">AI 对话搜索</h2>
+            <p className="font-['Inter'] text-[#6B6660] mt-1">描述您的业务，我们将为您定位潜在客户</p>
           </div>
 
-          <div className="h-[450px] overflow-y-auto p-8 space-y-6 bg-gray-50/30">
+          <div className="h-[450px] overflow-y-auto p-8 space-y-6 bg-[#FBF9F6]/50">
             {chatMessages.map((msg, idx) => (
               <div key={idx} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
                 <div
-                  className={`max-w-[85%] rounded-2xl px-5 py-3 shadow-sm ${
+                  className={`max-w-[85%] rounded-[16px] px-5 py-3 shadow-sm font-['Inter'] ${
                     msg.role === "user"
-                      ? "bg-purple-600 text-white"
-                      : "bg-white text-gray-800 border border-gray-100"
+                      ? "bg-[#323333] text-white"
+                      : "bg-white text-[#323333] border border-[#E5E1D8]"
                   }`}
                 >
                   <p className="text-[15px] leading-relaxed">{msg.content}</p>
@@ -276,33 +284,33 @@ export function AIQuestionnaire({
             ))}
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-white border border-gray-100 rounded-2xl px-5 py-3 shadow-sm">
-                  <Loader2 className="w-5 h-5 text-purple-600 animate-spin" />
+                <div className="bg-white border border-[#E5E1D8] rounded-[16px] px-5 py-3 shadow-sm">
+                  <Loader2 className="w-5 h-5 text-[#323333] animate-spin" />
                 </div>
               </div>
             )}
           </div>
 
-          <form onSubmit={handleChatSubmit} className="p-6 bg-white border-t border-gray-100 flex gap-3">
+          <form onSubmit={handleChatSubmit} className="p-6 bg-white border-t border-[#E5E1D8] flex gap-3">
             <Input
               value={chatInput}
               onChange={(e) => setChatInput(e.target.value)}
               placeholder="例如：我是一家做香港网站建设的公司，想找需要开发服务的客户..."
-              className="flex-1 py-6 rounded-xl border-gray-200 focus:ring-purple-500/20"
+              className="flex-1 py-6 rounded-[12px] border-[#E5E1D8] focus:ring-[#323333]/10 font-['Inter']"
               disabled={isLoading}
             />
-            <Button type="submit" disabled={isLoading || !chatInput.trim()} className="h-auto px-6 rounded-xl bg-purple-600 hover:bg-purple-700 shadow-md">
-              <Send className="w-5 h-5" />
+            <Button type="submit" disabled={isLoading || !chatInput.trim()} className="h-auto px-6 rounded-[12px] bg-[#323333] hover:bg-black shadow-sm">
+              <Send className="w-5 h-5 text-white" />
             </Button>
           </form>
 
-          <div className="px-8 py-5 bg-gray-50 border-t border-gray-100 flex justify-between items-center">
-            <Button variant="ghost" onClick={() => setMode("choice")} className="text-gray-500">
+          <div className="px-8 py-5 bg-[#FEFCFA] border-t border-[#E5E1D8] flex justify-between items-center">
+            <Button variant="ghost" onClick={() => setMode("choice")} className="font-['Inter'] text-[#6B6660] hover:text-[#323333]">
               返回
             </Button>
             <Button 
               onClick={handleComplete} 
-              className="bg-green-600 hover:bg-green-700 text-white rounded-lg px-8 font-bold"
+              className="bg-[#2D5F2D] hover:bg-[#1E401E] text-white rounded-[10px] px-8 font-bold font-['Inter']"
               disabled={chatMessages.length < 2}
             >
               开始全网扫描
@@ -318,29 +326,29 @@ export function AIQuestionnaire({
   const progress = ((currentStep + 1) / questions.length) * 100
 
   return (
-    <div className={`w-full flex items-center justify-center p-4 ${isModal ? '' : 'min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50'}`}>
-      <div className="max-w-2xl w-full bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100">
-        <div className="bg-gradient-to-r from-purple-600 to-blue-600 p-8">
+    <div className={`w-full flex items-center justify-center p-4 ${isModal ? '' : 'min-h-screen bg-[#FBF9F6]'}`}>
+      <div className="max-w-2xl w-full bg-white rounded-[24px] shadow-sm overflow-hidden border border-[#E5E1D8]">
+        <div className="bg-[#FEFCFA] p-8 border-b border-[#E5E1D8]">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-white">精准意向配置</h2>
-            <span className="text-purple-100 text-sm font-bold bg-white/10 px-3 py-1 rounded-full">
+            <h2 className="font-['Merriweather'] text-[24px] font-bold text-[#323333]">精准意向配置</h2>
+            <span className="font-['Inter'] text-[#9B9690] text-sm font-semibold bg-[#F5F3F0] px-3 py-1 rounded-full">
               步骤 {currentStep + 1} / {questions.length}
             </span>
           </div>
-          <div className="w-full bg-white/20 rounded-full h-2">
-            <div className="bg-white h-2 rounded-full transition-all duration-500 ease-out shadow-[0_0_8px_rgba(255,255,255,0.5)]" style={{ width: `${progress}%` }} />
+          <div className="w-full bg-[#E5E1D8] rounded-full h-1.5">
+            <div className="bg-[#323333] h-1.5 rounded-full transition-all duration-500 ease-out" style={{ width: `${progress}%` }} />
           </div>
         </div>
 
-        <div className="p-10 min-h-[300px]">
-          <h3 className="text-2xl font-bold text-gray-900 mb-6">{currentQuestion.question}</h3>
+        <div className="p-10 min-h-[300px] bg-[#FBF9F6]/30">
+          <h3 className="font-['Merriweather'] text-[22px] font-bold text-[#323333] mb-8">{currentQuestion.question}</h3>
 
           {currentQuestion.type === "text" && (
             <Input
               value={(formData[currentQuestion.id] as string) || ""}
               onChange={(e) => setFormData({ ...formData, [currentQuestion.id]: e.target.value })}
               placeholder={currentQuestion.placeholder}
-              className="text-lg py-7 rounded-xl border-2 focus:border-purple-500/50"
+              className="text-lg py-7 rounded-[12px] border border-[#E5E1D8] focus:border-[#323333] bg-white font-['Inter']"
             />
           )}
 
@@ -349,12 +357,12 @@ export function AIQuestionnaire({
               value={(formData[currentQuestion.id] as string) || ""}
               onChange={(e) => setFormData({ ...formData, [currentQuestion.id]: e.target.value })}
               placeholder={currentQuestion.placeholder}
-              className="text-lg min-h-[150px] rounded-xl border-2 focus:border-purple-500/50"
+              className="text-lg min-h-[150px] rounded-[12px] border border-[#E5E1D8] focus:border-[#323333] bg-white font-['Inter']"
             />
           )}
 
           {currentQuestion.type === "multiselect" && currentQuestion.options && (
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-4">
               {currentQuestion.options.map((option) => {
                 const selected = ((formData[currentQuestion.id] as string[]) || []).includes(option)
                 return (
@@ -366,14 +374,14 @@ export function AIQuestionnaire({
                       const updated = selected ? current.filter((item) => item !== option) : [...current, option]
                       setFormData({ ...formData, [currentQuestion.id]: updated })
                     }}
-                    className={`text-left px-5 py-4 rounded-xl border-2 transition-all flex items-center justify-between ${
+                    className={`text-left px-5 py-4 rounded-[12px] border transition-all flex items-center justify-between font-['Inter'] ${
                       selected 
-                      ? "border-purple-600 bg-purple-50 text-purple-700 shadow-sm" 
-                      : "border-gray-100 hover:border-gray-200 bg-gray-50/50"
+                      ? "border-[#323333] bg-[#EDE9E0] text-[#323333] shadow-sm" 
+                      : "border-[#E5E1D8] hover:border-[#323333] bg-white text-[#6B6660]"
                     }`}
                   >
-                    <span className="font-bold text-[15px]">{option}</span>
-                    {selected && <div className="w-5 h-5 bg-purple-600 rounded-full flex items-center justify-center"><Check className="w-3 h-3 text-white" /></div>}
+                    <span className="font-semibold text-[15px]">{option}</span>
+                    {selected && <div className="w-5 h-5 bg-[#323333] rounded-full flex items-center justify-center"><Check className="w-3 h-3 text-white" /></div>}
                   </button>
                 )
               })}
@@ -381,15 +389,15 @@ export function AIQuestionnaire({
           )}
         </div>
 
-        <div className="border-t p-8 flex justify-between bg-gray-50/50">
-          <Button variant="ghost" onClick={handleFormBack} disabled={currentStep === 0} className="text-gray-500 px-8">
+        <div className="border-t border-[#E5E1D8] p-8 flex justify-between bg-[#FEFCFA]">
+          <Button variant="ghost" onClick={handleFormBack} disabled={currentStep === 0} className="font-['Inter'] text-[#6B6660] px-8">
             上一步
           </Button>
           <div className="flex gap-3">
-            <Button variant="ghost" onClick={() => setMode("choice")} className="text-gray-400">
+            <Button variant="ghost" onClick={() => setMode("choice")} className="font-['Inter'] text-[#9B9690] hover:text-[#323333]">
               取消
             </Button>
-            <Button onClick={handleFormNext} className="bg-purple-600 hover:bg-purple-700 text-white rounded-lg px-10 font-bold shadow-lg transition-transform active:scale-95">
+            <Button onClick={handleFormNext} className="bg-[#323333] hover:bg-black text-white rounded-[10px] px-10 font-bold font-['Inter'] shadow-sm transition-transform active:scale-95">
               {currentStep === questions.length - 1 ? "完成并开始扫描" : "下一步"}
             </Button>
           </div>
