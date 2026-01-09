@@ -72,26 +72,40 @@ const PlatformIcon = ({ platform }: { platform: string }) => {
 
 export default function Page() {
   const [intents, setIntents] = useState<Intent[]>([])
+  const [lastQuery, setLastQuery] = useState<{ business: string; keywords: string[] } | null>(null)
 
   useEffect(() => {
     const saved = localStorage.getItem("scannedIntents")
+    const savedQuery = localStorage.getItem("lastScanQuery")
+    
     if (saved) {
       try {
         const parsed = JSON.parse(saved)
-        console.log("[IntentRadar] Loaded intents from storage:", parsed.length)
         setIntents(parsed)
       } catch (e) {
         console.error("[IntentRadar] Failed to load scanned intents", e)
       }
     }
+
+    if (savedQuery) {
+      try {
+        setLastQuery(JSON.parse(savedQuery))
+      } catch (e) {
+        console.error("[IntentRadar] Failed to load last query", e)
+      }
+    }
   }, [])
 
-  const handleScanComplete = (results: Intent[]) => {
-    console.log("[IntentRadar] Scan complete, results:", results.length)
+  const handleScanComplete = (results: Intent[], query?: { business: string; keywords: string[] }) => {
     if (results && results.length > 0) {
       setIntents(results)
       localStorage.setItem("scannedIntents", JSON.stringify(results))
-      // Trigger event for other tabs/pages
+      
+      if (query) {
+        setLastQuery(query)
+        localStorage.setItem("lastScanQuery", JSON.stringify(query))
+      }
+      
       window.dispatchEvent(new Event("storage"))
     }
   }
@@ -103,6 +117,23 @@ export default function Page() {
       onScanComplete={handleScanComplete}
     >
       <div className="max-w-[800px] mx-auto py-8 px-6">
+        {/* Last Scan Info */}
+        {lastQuery && (
+          <div className="mb-8 p-4 bg-[#F5F3F0] rounded-[12px] border border-[#E5E1D8]">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-[12px] font-bold text-[#9B9690] uppercase tracking-wider">Last Scan Query</span>
+            </div>
+            <p className="font-['Merriweather'] text-[16px] text-[#323333] font-bold">
+              {lastQuery.business} 
+              {lastQuery.keywords.length > 0 && (
+                <span className="text-[#6B6660] font-normal font-['Inter'] ml-2">
+                  (Keywords: {lastQuery.keywords.join(", ")})
+                </span>
+              )}
+            </p>
+          </div>
+        )}
+
         {intents.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-32 text-center">
             <div className="w-16 h-16 bg-[#F5F3F0] rounded-full flex items-center justify-center mb-6">

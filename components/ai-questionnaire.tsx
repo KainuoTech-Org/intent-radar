@@ -131,7 +131,6 @@ export function AIQuestionnaire({
     setIsLoading(true)
     
     try {
-      // 提取关键词 (从 formData 或 chatMessages)
       const business = formData.business as string || "Web Development"
       const keywords = typeof formData.keywords === 'string' ? formData.keywords.split(/[，, ]+/) : ["service", "need"]
       const platforms = (formData.platforms as string[]) || ["xiaohongshu", "linkedin"]
@@ -145,23 +144,25 @@ export function AIQuestionnaire({
       const data = await response.json()
       
       if (data.success && data.intents) {
-        // 转换后端数据结构为前端 Intent 接口
         const formattedResults: Intent[] = data.intents.map((item: any) => ({
           id: item.id,
           platform: item.platform,
-          avatar: item.author_avatar,
-          author: item.author_name,
+          avatar: item.avatar || "",
+          author: item.author || "潜在客户",
           timeAgo: "刚刚发现",
           content: item.content,
-          intentScore: item.ai_score,
-          sourceUrl: item.source_url,
-          timestamp: new Date(item.posted_at),
+          intentScore: item.intentScore,
+          sourceUrl: item.sourceUrl,
+          timestamp: new Date(),
+          topComment: item.topComment
         }))
 
         if (onComplete) {
-          onComplete(formattedResults)
+          // Pass results and the query info back to parent
+          (onComplete as any)(formattedResults, { business, keywords })
         } else {
           localStorage.setItem("scannedIntents", JSON.stringify(formattedResults))
+          localStorage.setItem("lastScanQuery", JSON.stringify({ business, keywords }))
           router.push("/")
         }
       }

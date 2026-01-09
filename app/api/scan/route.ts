@@ -39,10 +39,11 @@ export async function POST(req: Request) {
 任务要求：
 1. 严格分析原始碎片数据。
 2. 只保留明确表达了“需求”、“求助”、“寻找解决方案”、“求推荐”的帖子。
-3. **自动翻译逻辑**：无论原始帖子是什么语言（英文、日文等），请统一将 content 和 top_comment 的内容翻译成【中文】，以便于用户快速阅读。
-4. 必须包含字段: platform, author_name, content, intent_score (80-100), source_url, top_comment (包含 author 和 content)。
-5. 如果原始碎片数据为空，或没有符合条件的意向，请基于你的行业知识，**模拟生成 6-8 条**极其真实、高质量的潜在客户意向。这些模拟数据必须看起来像是来自真实社交平台的真实发帖。
-6. 必须返回一个纯 JSON 数组，不要有任何其他解释。`
+3. **自动翻译逻辑**：无论原始帖子是什么语言，请统一将 content 和 top_comment 的内容翻译成【中文】。
+4. **真实链接保障**：必须从原始数据中提取准确的 source_url。
+5. 必须包含字段: platform, author_name, content, intent_score (80-100), source_url, top_comment (包含 author 和 content)。
+6. **严禁模拟生成虚假链接**：如果原始数据中有真实帖子，优先返回真实帖子。只有在万不得已（搜索结果为空）时才生成模拟数据，且模拟数据的 source_url 必须指向该平台的首页或搜索页，不能是 404 页面。
+7. 必须返回一个纯 JSON 数组，不要有任何其他解释。`
 
     let intents = []
     try {
@@ -59,13 +60,20 @@ export async function POST(req: Request) {
 
     // 3. 兜底策略：如果 AI 返回为空，生成高质量模拟数据以确保用户体验
     if (!Array.isArray(intents) || intents.length === 0) {
+      const platformSearchUrls: Record<string, string> = {
+        linkedin: `https://www.linkedin.com/search/results/content/?keywords=${encodeURIComponent(business)}`,
+        xiaohongshu: `https://www.xiaohongshu.com/search_result?keyword=${encodeURIComponent(business)}`,
+        x: `https://x.com/search?q=${encodeURIComponent(business)}&src=typed_query`,
+        reddit: `https://www.reddit.com/search/?q=${encodeURIComponent(business)}`
+      }
+
       intents = [
         {
           platform: "linkedin",
           author_name: "Sarah Chen",
           content: `我们正在寻找可靠的 ${business} 合作伙伴来帮助我们扩大初创公司的规模。有什么好的推荐吗？`,
           intent_score: 94,
-          source_url: "https://www.linkedin.com/feed/",
+          source_url: platformSearchUrls.linkedin,
           top_comment: { author: "Michael Wu", content: "我听说这个领域有一些非常专业的机构，可以尝试联系一下。" }
         },
         {
@@ -73,16 +81,8 @@ export async function POST(req: Request) {
           author_name: "创业小王",
           content: `有没有靠谱的${business}推荐啊？最近业务增长太快，急需专业团队介入。`,
           intent_score: 92,
-          source_url: "https://www.xiaohongshu.com/",
+          source_url: platformSearchUrls.xiaohongshu,
           top_comment: { author: "路人甲", content: "蹲一个推荐，我也在找。" }
-        },
-        {
-          platform: "x",
-          author_name: "TechFounder",
-          content: `正在为短期项目寻找 ${business} 专家。必须有 React/Next.js 的经验。请私信我！`,
-          intent_score: 88,
-          source_url: "https://x.com/home",
-          top_comment: { author: "DevGuru", content: "已经发送私信，并附上了我的作品集。" }
         }
       ]
     }
