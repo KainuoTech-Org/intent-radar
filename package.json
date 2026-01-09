@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@ai-sdk/openai": "^3.0.7",
+    "@fontsource/inter": "^5.2.8",
     "@fontsource/merriweather": "^5.2.11",
     "@fontsource/outfit": "^5.2.8",
     "@fontsource/roboto": "^5.2.9",

@@ -40,43 +40,52 @@
 }
 
 .dark {
-  /* IntentRadar New Design System (Claude-like Warm Theme) */
-  --background: #fbfbfb;  /* 浅咖白 */
-  --foreground: #212121;  /* 深灰黑 */
-  --card: #ffffff;
-  --card-foreground: #212121;
-  --popover: #ffffff;
-  --popover-foreground: #212121;
-  --primary: #212121;     /* 主要按钮使用深色 */
-  --primary-foreground: #ffffff;
-  --secondary: #f3f4f6;   /* 浅灰色辅助背景 */
-  --secondary-foreground: #1f2937;
-  --muted: #f3f4f6;
-  --muted-foreground: #6b7280;
-  --accent: #f3f4f6;
-  --accent-foreground: #111827;
-  --destructive: #ef4444;
-  --destructive-foreground: #ffffff;
-  --border: #e5e5e5;      /* 极淡边框 */
-  --input: #f3f4f6;
-  --ring: #212121;
-  --radius: 0.75rem;      /* rounded-xl */
+  /* IntentRadar 1:1 Pixel Perfect Design System (Figma) */
+  --background: #FBF9F6;  /* 米色背景 */
+  --foreground: #323333;  /* 深灰黑文字 */
+  
+  --card: #FEFCFA;        /* 极浅暖白卡片 */
+  --card-foreground: #323333;
+  
+  --popover: #FFFFFF;
+  --popover-foreground: #323333;
+  
+  --primary: #323333;
+  --primary-foreground: #FFFFFF;
+  
+  --secondary: #EDE9E0;   /* 选中态/辅助色 */
+  --secondary-foreground: #323333;
+  
+  --muted: #E5E1D8;
+  --muted-foreground: #6B6660; /* 次级文字颜色 */
+  
+  --accent: #EDE9E0;
+  --accent-foreground: #323333;
+  
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
+  
+  --border: #E5E1D8;      /* 暖灰边框 */
+  --input: #FFFFFF;
+  --ring: #323333;
+  
+  --radius: 0.625rem;     /* 10px */
   
   /* Sidebar Specifics */
-  --sidebar: #fbfbfb;     /* 与背景同色 */
-  --sidebar-foreground: #646464;
-  --sidebar-primary: #212121;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #57575729; /* 选中态背景 */
-  --sidebar-accent-foreground: #212121;
-  --sidebar-border: transparent;
-  --sidebar-ring: #212121;
+  --sidebar: #FBF9F6;     /* 与大背景一致 */
+  --sidebar-foreground: #323333;
+  --sidebar-primary: #EDE9E0; /* 菜单选中态背景 */
+  --sidebar-primary-foreground: #323333;
+  --sidebar-accent: #EDE9E0;
+  --sidebar-accent-foreground: #323333;
+  --sidebar-border: #E5E1D8;
+  --sidebar-ring: #323333;
 }
 
 @theme inline {
   --font-serif: "Merriweather", serif;
-  --font-sans: "Roboto", "Outfit", system-ui, sans-serif;
-  --font-heading: "Outfit", sans-serif;
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-heading: "Inter", sans-serif;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
